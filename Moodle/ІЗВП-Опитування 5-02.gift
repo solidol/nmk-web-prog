@@ -1,0 +1,72 @@
+// question: 0  name: Switch category to $course$/top/Опитування 5-02
+$CATEGORY: $course$/top/Опитування 5-02
+
+::ОП 05-02-01::Оберіть функцію виконання запиту до СКБД{
+	=mysqli_query();
+	~mysqli_connect();
+	~mysqli_init();
+	~mysqli_select_db();
+}
+
+::ОП 05-02-02::Оберіть функцію виконання запиту до СКБД{
+	=mysqli_query();
+	~mysqli_autocommit();
+	~mysqli_rollback();
+	~mysqli_select_db();
+}
+
+::ОП 05-02-03::Оберіть функцію виконання запиту до СКБД{
+	=mysqli_query();
+	~mysqli_autocommit();
+	~mysqli_rollback();
+	~mysqli_stat();
+}
+
+::ОП 05-02-04::Оберіть функцію під'єднання до СКБД{
+	=mysqli_connect();
+	~mysqli_query();
+	~mysqli_init();
+	~mysqli_select_db();
+}
+
+::ОП 05-02-05::Оберіть функцію під'єднання до СКБД{
+	=mysqli_connect();
+	~mysqli_exec();
+	~mysqli_init();
+	~mysqli_select_db();
+}
+
+::ОП 05-02-06::Оберіть функцію під'єднання до СКБД{
+	=mysqli_connect();
+	~mysqli_query();
+	~mysqli_init();
+	~mysqli_select_db();
+}
+
+::ОП 05-02-07::Оберіть функцію виконання запиту до СКБД PDO{
+	=exec();
+	~init();
+	~prepare();
+	~commit();
+}
+
+::ОП 05-02-08::Оберіть функцію виконання запиту до СКБД PDO{
+	=query();
+	~init();
+	~prepare();
+	~commit();
+}
+
+::ОП 05-02-09::Оберіть функцію виконання запиту до СКБД PDO{
+	=query();
+	~quote();
+	~prepare();
+	~commit();
+}
+
+::ОП 05-02-10::Оберіть функцію виконання запиту до СКБД PDO{
+	=exec();
+	~quote();
+	~rollback();
+	~commit();
+}
