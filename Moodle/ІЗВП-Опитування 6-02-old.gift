@@ -1,8 +1,6 @@
 // question: 0  name: Switch category to $course$/top/Опитування 6-02
 $CATEGORY: $course$/top/Опитування 6-02
 
-
-// question: 50708  name: ОП 06-02-01
 ::ОП 06-02-01::Для встановлення файлів Cookie у користувача використовується функція{
 	=setcookie();
 	~getcookie();
@@ -10,8 +8,6 @@ $CATEGORY: $course$/top/Опитування 6-02
 	~installcookie();
 }
 
-
-// question: 50709  name: ОП 06-02-02
 ::ОП 06-02-02::Для встановлення файлів Cookie у користувача використовується функція{
 	=setcookie();
 	~cookie_start();
@@ -19,8 +15,6 @@ $CATEGORY: $course$/top/Опитування 6-02
 	~installcookie();
 }
 
-
-// question: 50710  name: ОП 06-02-03
 ::ОП 06-02-03::Під час встановлення Cookie неможливо задати наступну інформацію{
 	=Формат файлу Cookie
 	~Назва параметру
@@ -28,8 +22,6 @@ $CATEGORY: $course$/top/Опитування 6-02
 	~Час життя Cookie
 }
 
-
-// question: 50711  name: ОП 06-02-04
 ::ОП 06-02-04::Під час встановлення Cookie неможливо задати наступну інформацію{
 	=Формат файлу Cookie
 	~Назва параметру
@@ -37,8 +29,6 @@ $CATEGORY: $course$/top/Опитування 6-02
 	~Час життя Cookie
 }
 
-
-// question: 50712  name: ОП 06-02-05
 ::ОП 06-02-05::Змінити зміст HTTP-заголовка сторінки можна за допомогою{
 	=header();
 	~header_start();
@@ -46,8 +36,6 @@ $CATEGORY: $course$/top/Опитування 6-02
 	~cookie_start();
 }
 
-
-// question: 50713  name: ОП 06-02-06
 ::ОП 06-02-06::Змінити зміст HTTP-заголовка сторінки можна за допомогою{
 	=header();
 	~set_header();
@@ -55,8 +43,6 @@ $CATEGORY: $course$/top/Опитування 6-02
 	~cookie_start();
 }
 
-
-// question: 50714  name: ОП 06-02-07
 ::ОП 06-02-07::Суперглобальний масив, що містить дані HTTP Cookie називається{
 	=$_COOKIE
 	~$_COOCKIE
@@ -64,8 +50,6 @@ $CATEGORY: $course$/top/Опитування 6-02
 	~$COOKIE;
 }
 
-
-// question: 50715  name: ОП 06-02-08
 ::ОП 06-02-08::Суперглобальний масив, що містить дані HTTP Cookie називається{
 	=$_COOKIE
 	~$_COOCKIE
@@ -73,8 +57,6 @@ $CATEGORY: $course$/top/Опитування 6-02
 	~$COOKIE;
 }
 
-
-// question: 50716  name: ОП 06-02-09
 ::ОП 06-02-09::Під час встановлення Cookie неможливо задати наступну інформацію{
 	=Формат файлу Cookie
 	~Назва параметру
@@ -83,7 +65,6 @@ $CATEGORY: $course$/top/Опитування 6-02
 }
 
 
-// question: 50717  name: ОП 06-02-10
 ::ОП 06-02-10::Для створення або поновлення сесії використовується функція{
 	=session_start();
 	~session_install();
@@ -91,8 +72,6 @@ $CATEGORY: $course$/top/Опитування 6-02
 	~session();
 }
 
-
-// question: 50718  name: ОП 06-02-11
 ::ОП 06-02-11::Для створення або поновлення сесії використовується функція{
 	=session_start();
 	~session_install();
@@ -100,8 +79,6 @@ $CATEGORY: $course$/top/Опитування 6-02
 	~sestcookie();
 }
 
-
-// question: 50719  name: ОП 06-02-12
 ::ОП 06-02-12::Для доступу до змінних сесії використовується суперглобальний масив{
 	=$_SESSION
 	~$_SESSIONS
@@ -109,8 +86,6 @@ $CATEGORY: $course$/top/Опитування 6-02
 	~$PHPSESSID
 }
 
-
-// question: 50720  name: ОП 06-02-13
 ::ОП 06-02-13::Для доступу до змінних сесії використовується суперглобальний масив{
 	=$_SESSION
 	~$_SESSIONS
@@ -118,8 +93,6 @@ $CATEGORY: $course$/top/Опитування 6-02
 	~$_COOKIE
 }
 
-
-// question: 50721  name: ОП 06-02-14
 ::ОП 06-02-14::Для видалення сесії використовується функція{
 	=session_destroy();
 	~session_delete();
@@ -127,13 +100,9 @@ $CATEGORY: $course$/top/Опитування 6-02
 	~unset_cookie();
 }
 
-
-// question: 50722  name: ОП 06-02-15
 ::ОП 06-02-15::Для видалення сесії використовується функція{
 	=session_destroy();
 	~unset_session();
 	~session_close();
 	~unset_cookie();
 }
-
-

@@ -1,0 +1,108 @@
+// question: 0  name: Switch category to $course$/top/Опитування 4-02
+$CATEGORY: $course$/top/Опитування 4-02
+
+::op-04-02-01::[html]<p>Оберіть правильний варіант опису методу класу<br></p>{
+	=<p>public function myMetthod()\{</p><p>...</p><p>return 0;</p><p>\}<br></p>
+	~<p><p>public myMetthod()\{</p><p>...</p><p>return 0;</p><p>\}</p><br></p>
+	~<p><p>public myMetthod\{</p><p>...</p><p>return 0;</p><p>\}</p><br></p>
+	~<p></p><p>$this-&gt;myMetthod()\{</p><p>...</p><p>return 0;</p><p>\}</p><br><p></p>
+}
+
+::op-04-02-02::[html]<p>Оберіть правильний варіант опису методу класу<br></p>{
+	=<p>public function myMetthod($a\=0)\{</p><p>...</p><p>return 0;</p><p>\}<br></p>
+	~<p></p><p>public myMetthod($a)\{</p><p>...</p><p>return 0;</p><p>\}</p><br><p></p>
+	~<p></p><p>public myMetthod\{</p><p>global $a;<br></p><p>...</p><p>return 0;</p><p>\}</p><br><p></p>
+	~<p></p><p>$this-&gt;myMetthod()\{</p><p>global $a;<br></p><p>...</p><p>return 0;</p><p>\}</p><br><p></p>
+}
+
+::op-04-02-03::[html]<p>Оберіть правильний варіант опису методу класу<br></p>{
+	=<p>public function myMetthod($a\=0)\{</p><p>global $b;<br></p><p>...</p><p>return 0;</p><p>\}<br></p>
+	~<p></p><p>public myMetthod($a)\{</p><p>global $a;<br></p><p>...</p><p>return 0;</p><p>\}</p><br><p></p>
+	~<p></p><p>public myMetthod()\{</p><p>$global $a;<br></p><p>...</p><p>return 0;</p><p>\}</p><br><p></p>
+	~<p></p><p>$this-&gt;myMetthod()\{</p><p>global $a;<br></p><p>...</p><p>return 0;</p><p>\}</p><br><p></p>
+}
+
+::op-04-02-04::[html]<p>Оберіть неправильний варіант опису методу класу<br></p>{
+	=<p>public myMetthod($a\=0)\{</p><p>global $b;<br></p><p>...</p><p>return 0;</p><p>\}<br></p>
+	~<p></p><p>public function myMetthod($a)\{</p><p>...</p><p>return 0;</p><p>\}</p><br><p></p>
+	~<p></p><p>public function myMetthod($b)\{</p><p>...</p><p>return $b;</p><p>\}</p><br><p></p>
+	~<p></p><p>function myMetthod()\{;</p><p>$a \= 1;<br></p><p>...</p><p>return $a;</p><p>\}</p><br><p></p>
+}
+
+::op-04-02-05::[html]<p>Оберіть неправильний варіант опису методу класу<br></p>{
+	=<p>public myMetthod($c \= $a)\{</p><p>&nbsp;$b \= 1;<br></p><p>...</p><p>return -1;</p><p>\}<br></p>
+	~<p></p><p>public function myMetthod($a \= 1)\{</p><p>...</p><p>return 0;</p><p>\}</p><br><p></p>
+	~<p></p><p>public function myMetthod($b \= '$a')\{</p><p>...</p><p>return $b;</p><p>\}</p><br><p></p>
+	~<p></p><p>private function myMetthod()\{;</p><p>$a \= 1;<br></p><p>...</p><p>return $a;</p><p>\}</p><br><p></p>
+}
+
+::op-04-02-06::[html]<p>Оберіть правильний варіант звернення до $this<br></p>{
+	=<p>$this-&gt;a</p>;
+	~<p>$this-&gt;$a</p>;
+	~<p>this-&gt;$a</p>;
+	~<p>$this-a</p>;
+}
+
+::op-04-02-07::[html]<p>Оберіть правильний варіант звернення до $this<br></p>{
+	=<p>$this-&gt;a;</p>
+	~<p>$this-$a;</p>
+	~<p>$this.a;</p>
+	~<p>this.a;</p>
+}
+
+::op-04-02-08::[html]<p>Оберіть правильний варіант звернення до методу класу через $this<br></p>{
+	=<p>$this-&gt;method1();</p>
+	~<p>$this-&gt;method1;</p>
+	~<p>this-&gt;method1();</p>
+	~<p>$this.method1();</p>
+}
+
+::op-04-02-09::[html]<p>Оберіть правильний варіант звернення до методу класу через $this<br></p>{
+	=<p>$this-&gt;method1();</p>
+	~<p>$this-method1();</p>
+	~<p>$this-&gt;method1\{\};</p>
+	~<p>$this.method1();</p>
+}
+
+::op-04-02-10::[html]<p>Оберіть правильний варіант звернення до методу класу через $this<br></p>{
+	=<p>$this-&gt;method1();</p>
+	~<p>$this-method1();</p>
+	~<p>$this-&gt;method1\{\};</p>
+	~<p>this.method1\{\};</p>
+}
+
+::op-04-02-11::[html]<p>Оберіть ключове слово, яке не використовуються для опису заголовків класів чи їх членів</p>{
+	=<p>void</p>
+	~<p>function</p>
+	~<p>public</p>
+	~<p>private</p>
+}
+
+::op-04-02-12::[html]<p>Оберіть ключове слово, яке не використовуються для опису заголовків класів чи їх членів</p>{
+	=<p>extend</p>
+	~<p>extends</p>
+	~<p>public</p>
+	~<p>function</p>
+}
+
+::op-04-02-13::[html]<p>Оберіть ключове слово, яке використовуються для опису заголовків класів чи їх членів</p>{
+	=<p>extends</p>
+	~<p>void</p>
+	~<p>foreach</p>
+	~<p>object</p>
+}
+
+::op-04-02-14::[html]<p>Оберіть ключове слово, яке використовуються для опису заголовків класів чи їх членів</p>{
+	=<p>private</p>
+	~<p>void</p>
+	~<p>publics</p>
+	~<p>object</p>
+}
+
+::op-04-02-15::[html]<p>Оберіть ключове слово, яке використовуються для опису заголовків класів чи їх членів</p>{
+	=<p>class</p>
+	~<p>inter</p>
+	~<p>publics</p>
+	~<p>object</p>
+}
+

@@ -1,0 +1,94 @@
+// question: 0  name: Switch category to $course$/top/Опитування 6-03
+$CATEGORY: $course$/top/Опитування 6-03
+
+
+// question: 9093  name: op-06-02-01
+::op-06-02-01::Виберіть функції РНР для відкриття та закриття під'єднання до БД{
+	~%50%mysql_connect()
+	~%50%mysql_close()
+	~%-30%mysql_disconnect()
+	~%-30%mysql_query()
+}
+
+
+// question: 9094  name: op-06-02-02
+::op-06-02-02::Виберіть функції РНР для відкриття та закриття під'єднання до БД{
+	~%50%mysql_connect()
+	~%50%mysql_close()
+	~%-30%mysql_disconnect()
+	~%-30%mysql_start()
+}
+
+
+// question: 9095  name: op-06-02-03
+::op-06-02-03::Виберіть функції РНР для відкриття та закриття під'єднання до БД{
+	~%50%mysql_connect()
+	~%50%mysql_close()
+	~%-30%mysql_select_db()
+	~%-30%mysql_start()
+}
+
+
+// question: 9096  name: op-06-02-04
+::op-06-02-04::Виберіть функції, що можна використати для отримання даних з таблиці{
+	~%100%mysql_query()
+	~%-30%mysql_close()
+	~%-30%mysql_select_db()
+	~%-30%mysql_fetch_assoc()
+}
+
+
+// question: 9097  name: op-06-02-05
+::op-06-02-05::Виберіть функції, що можна використати для отримання даних з таблиці{
+	~%100%mysql_query()
+	~%-30%mysql_select()
+	~%-30%mysql_select_db()
+	~%-30%mysql_fetch_assoc()
+}
+
+
+// question: 9098  name: op-06-02-06
+::op-06-02-06::Виберіть функції, що можна використати для отримання даних з таблиці{
+	~%100%mysql_query()
+	~%-30%mysql_select()
+	~%-30%mysql_select_db()
+	~%-30%mysql_list_fields()
+}
+
+
+// question: 9099  name: op-06-02-07
+::op-06-02-07::Для отримання даних про поля таблиці можна використати наступні функції{
+	~%50%mysql_num_fields()
+	~%50%mysql_list_fields()
+	~%-30%mysql_select_db()
+	~%-30%mysql_select_fields()
+}
+
+
+// question: 9100  name: op-06-02-08
+::op-06-02-08::Для запису даних в таблицю можна використати наступні функції{
+	~%100%mysql_query()
+	~%-30%mysql_select()
+	~%-30%mysql_insert()
+	~%-30%mysql_update_db()
+}
+
+
+// question: 9101  name: op-06-02-09
+::op-06-02-09::Для запису даних в таблицю можна використати наступні функції{
+	~%100%mysql_query()
+	~%-30%mysql_set_field()
+	~%-30%mysql_result()
+	~%-30%mysql_update_db()
+}
+
+
+// question: 9102  name: op-06-02-10
+::op-06-02-10::Для перетворення даних із запросу вибірки можна використати наступні функції{
+	~%50%mysql_fetch_array()
+	~%50%mysql_fetch_assoc()
+	~%-30%mysql_result()
+	~%-30%mysql_update_db()
+}
+
+

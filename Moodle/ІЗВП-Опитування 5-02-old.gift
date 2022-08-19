@@ -1,8 +1,6 @@
 // question: 0  name: Switch category to $course$/top/Опитування 5-02
 $CATEGORY: $course$/top/Опитування 5-02
 
-
-// question: 49954  name: ОП 05-02-01
 ::ОП 05-02-01::Оберіть функцію виконання запиту до СКБД{
 	=mysqli_query();
 	~mysqli_connect();
@@ -10,8 +8,6 @@ $CATEGORY: $course$/top/Опитування 5-02
 	~mysqli_select_db();
 }
 
-
-// question: 49955  name: ОП 05-02-02
 ::ОП 05-02-02::Оберіть функцію виконання запиту до СКБД{
 	=mysqli_query();
 	~mysqli_autocommit();
@@ -19,8 +15,6 @@ $CATEGORY: $course$/top/Опитування 5-02
 	~mysqli_select_db();
 }
 
-
-// question: 49956  name: ОП 05-02-03
 ::ОП 05-02-03::Оберіть функцію виконання запиту до СКБД{
 	=mysqli_query();
 	~mysqli_autocommit();
@@ -28,8 +22,6 @@ $CATEGORY: $course$/top/Опитування 5-02
 	~mysqli_stat();
 }
 
-
-// question: 49957  name: ОП 05-02-04
 ::ОП 05-02-04::Оберіть функцію під'єднання до СКБД{
 	=mysqli_connect();
 	~mysqli_query();
@@ -37,8 +29,6 @@ $CATEGORY: $course$/top/Опитування 5-02
 	~mysqli_select_db();
 }
 
-
-// question: 49958  name: ОП 05-02-05
 ::ОП 05-02-05::Оберіть функцію під'єднання до СКБД{
 	=mysqli_connect();
 	~mysqli_exec();
@@ -46,8 +36,6 @@ $CATEGORY: $course$/top/Опитування 5-02
 	~mysqli_select_db();
 }
 
-
-// question: 49959  name: ОП 05-02-06
 ::ОП 05-02-06::Оберіть функцію під'єднання до СКБД{
 	=mysqli_connect();
 	~mysqli_query();
@@ -55,8 +43,6 @@ $CATEGORY: $course$/top/Опитування 5-02
 	~mysqli_select_db();
 }
 
-
-// question: 49960  name: ОП 05-02-07
 ::ОП 05-02-07::Оберіть функцію виконання запиту до СКБД PDO{
 	=exec();
 	~init();
@@ -64,8 +50,6 @@ $CATEGORY: $course$/top/Опитування 5-02
 	~commit();
 }
 
-
-// question: 49961  name: ОП 05-02-08
 ::ОП 05-02-08::Оберіть функцію виконання запиту до СКБД PDO{
 	=query();
 	~init();
@@ -73,8 +57,6 @@ $CATEGORY: $course$/top/Опитування 5-02
 	~commit();
 }
 
-
-// question: 49962  name: ОП 05-02-09
 ::ОП 05-02-09::Оберіть функцію виконання запиту до СКБД PDO{
 	=query();
 	~quote();
@@ -82,13 +64,9 @@ $CATEGORY: $course$/top/Опитування 5-02
 	~commit();
 }
 
-
-// question: 49963  name: ОП 05-02-10
 ::ОП 05-02-10::Оберіть функцію виконання запиту до СКБД PDO{
 	=exec();
 	~quote();
 	~rollback();
 	~commit();
 }
-
-
