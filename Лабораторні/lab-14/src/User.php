@@ -1,17 +1,20 @@
 <?php
-class User {
+class User
+{
     private $pdo;
     public $id;
     public $username;
     public $email;
     public $password;
 
-    public function __construct(PDO $pdo) {
+    public function __construct(PDO $pdo)
+    {
         $this->pdo = $pdo;
     }
 
     // Отримання всіх користувачів з таблиці "users"
-    public static function all(PDO $pdo) {
+    public static function all(PDO $pdo)
+    {
         $sql = "SELECT * FROM users";
         $stmt = $pdo->query($sql);
 
@@ -30,42 +33,51 @@ class User {
     }
 
     // Знайти користувача за його ID
-    public function find($id) {
+    public static function find(PDO $pdo, $id)
+    {
         $sql = "SELECT * FROM users WHERE id = :id";
-        $stmt = $this->pdo->prepare($sql);
+        $stmt = $pdo->prepare($sql);
         $stmt->bindParam(':id', $id);
 
         if ($stmt->execute()) {
-            $user = $stmt->fetch(PDO::FETCH_ASSOC);
-            if ($user) {
-                $this->id = $user['id'];
-                $this->username = $user['username'];
-                $this->email = $user['email'];
-                $this->password = $user['password'];
-                return true;
+            $res = $stmt->fetch(PDO::FETCH_OBJ);
+            if ($res) {
+                $user = new User($pdo);
+                $user->id = $res->id;
+                $user->username = $res->username;
+                $user->email = $res->email;
+                $user->password = $res->password;
+                return $user;
             }
         }
 
-        return false;
+        return null;
     }
 
     // Додавання нового користувача
-    public function create($username, $email, $password) {
+    public static function create($pdo, $username, $email, $password)
+    {
         $sql = "INSERT INTO users (username, email, password) VALUES (:username, :email, :password)";
-        $stmt = $this->pdo->prepare($sql);
+        $stmt = $pdo->prepare($sql);
         $stmt->bindParam(':username', $username);
         $stmt->bindParam(':email', $email);
         $stmt->bindParam(':password', password_hash($password, PASSWORD_DEFAULT));
 
         if ($stmt->execute()) {
-            return true;
+            $user = new User($pdo);
+            $user->id = $pdo->lastInsertId();
+            $user->username = $username;
+            $user->email = $email;
+            $user->password = $password;
+            return $user;
         } else {
-            return false;
+            return null;
         }
     }
 
     // Оновлення існуючого користувача
-    public function update() {
+    public function update()
+    {
         $sql = "UPDATE users SET username = :username, email = :email, password = :password WHERE id = :id";
         $stmt = $this->pdo->prepare($sql);
         $stmt->bindParam(':id', $this->id);
@@ -81,12 +93,14 @@ class User {
     }
 
     // Видалення користувача
-    public function delete() {
+    public static function delete(PDO $pdo, User &$user)
+    {
         $sql = "DELETE FROM users WHERE id = :id";
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->bindParam(':id', $this->id);
+        $stmt = $pdo->prepare($sql);
+        $stmt->bindParam(':id', $user->id);
 
         if ($stmt->execute()) {
+            unset($user);
             return true;
         } else {
             return false;
