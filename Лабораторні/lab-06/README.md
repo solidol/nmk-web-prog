@@ -192,7 +192,7 @@ $array[$name] = $value;
 
 ```php
 while(list($name, $value)=each($_COOKIE)){
-$array[0] = "Иван";
+$array[0] = "Іван";
 $array[1] = "23";
 }
 foreach($array as $val){
