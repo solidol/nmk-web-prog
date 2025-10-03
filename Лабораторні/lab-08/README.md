@@ -10,6 +10,96 @@
 
 Персональний комп'ютер. Пакет програм XAMPP. Текстовий редактор Sublime Text 3 або IDE NetBeans. Web-браузер Chrome, Firefox, Opera
 
+## Теоретичні відомості
+
+### Що таке XML?
+
+XML (eXtensible Markup Language) — це розширювана мова розмітки, яка використовується для зберігання та передачі структурованих даних у вигляді тексту. XML-файли мають ієрархічну структуру з тегами.
+
+**Приклад XML:**
+```xml
+<books>
+  <book>
+    <title>PHP для початківців</title>
+    <author>Іван Іванов</author>
+  </book>
+  <book>
+    <title>Вивчаємо XML</title>
+    <author>Петро Петренко</author>
+  </book>
+</books>
+```
+
+### Що таке JSON?
+
+JSON (JavaScript Object Notation) — це легкий текстовий формат обміну даними, який легко читається людиною і просто парситься машиною. Широко використовується для передачі даних між сервером і клієнтом.
+
+**Приклад JSON:**
+```json
+[
+  {"title": "PHP для початківців", "author": "Іван Іванов"},
+  {"title": "Вивчаємо XML", "author": "Петро Петренко"}
+]
+```
+
+### Робота з XML у PHP
+
+Для роботи з XML у PHP часто використовують клас `DOMDocument`.
+
+**Завантаження XML з файлу:**
+```php
+<?php
+$dom = new DOMDocument();
+$dom->load('books.xml');
+$books = $dom->getElementsByTagName('book');
+foreach ($books as $book) {
+    $title = $book->getElementsByTagName('title')[0]->nodeValue;
+    $author = $book->getElementsByTagName('author')[0]->nodeValue;
+    echo "Назва: $title, Автор: $author<br>";
+}
+?>
+```
+
+**Створення XML та збереження у файл:**
+```php
+<?php
+$dom = new DOMDocument('1.0', 'UTF-8');
+$books = $dom->createElement('books');
+$book = $dom->createElement('book');
+$title = $dom->createElement('title', 'PHP для початківців');
+$author = $dom->createElement('author', 'Іван Іванов');
+$book->appendChild($title);
+$book->appendChild($author);
+$books->appendChild($book);
+$dom->appendChild($books);
+$dom->save('books.xml');
+?>
+```
+
+### Робота з JSON у PHP
+
+**Читання JSON з файлу:**
+```php
+<?php
+$data = file_get_contents('books.json');
+$array = json_decode($data, true);
+foreach ($array as $book) {
+    echo "Назва: {$book['title']}, Автор: {$book['author']}<br>";
+}
+?>
+```
+
+**Запис масиву у JSON-файл:**
+```php
+<?php
+$array = [
+    ["title" => "PHP для початківців", "author" => "Іван Іванов"],
+    ["title" => "Вивчаємо XML", "author" => "Петро Петренко"]
+];
+file_put_contents('books.json', json_encode($array, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
+?>
+```
+
 ## Хід роботи
 
 1. Впевнитись, що пакет XAMPP встановлено та web-сервер Apache запущений

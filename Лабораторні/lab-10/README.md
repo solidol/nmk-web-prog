@@ -29,19 +29,19 @@ Postman є надзвичайно корисним інструментом дл
 
 ## Хід роботи
 
-1. Встановіть десктопну версію Postamn або використайте web-версію даного програмного забезпечення.
-2. Створіть аккаунт Postman або вторизуйтесь через Google-аккаунт
+1. Встановіть десктопну версію Postman або використайте web-версію даного програмного забезпечення.
+2. Створіть аккаунт Postman або вторизуйтесь через Google-аккаунт.
 3. Створіть нову область запитів, якщо це необхідно та виконайте запит до тестових API `https://jsonplaceholder.typicode.com/posts` та `https://jsonplaceholder.typicode.com/posts`
 
 ![GET-запит до API 1](img/10-010.gif)
 
 4. Додайте параметри, як показано нижче
-   
+
 ![GET-запит до API 2](img/10-020.gif)
 
 5. Параметри форми передаються за допомогою запитів POST. Натисніть «+» → POST → до адресного рядка додайте `https://postman-echo.com/post`. У тілі запиту (Body) виберіть вкладку form-data та заповніть необхідні поля → надішліть (Send).
 6. Додайте до запиту файл. Для цього у form-data поміняйте тип параметра з Text на File. Отримана відповідь зберігатиметься у розділі Files.
-   
+
 ![Запит із файлом до API 1](img/10-020.gif)
 
 7. Перевірте роботу авторизації Postman API. Змініть метод на GET. Перейдіть на вкладку Authorization → Натисніть Type → Basic Auth. Введіть ім'я користувача – postman, пароль – password → Send. Якщо протокол авторизації працює коректно, сервер видасть: authenticated: true. У якості API авторизації використайте `https://postman-echo.com/basic-auth.`.
@@ -49,11 +49,18 @@ Postman є надзвичайно корисним інструментом дл
 ![Запит із файлом до API 1](img/10-030.gif)
 
 8. Протестуйте API `https://jsonplaceholder.typicode.com/users` з використанням методу POST. Натисніть «+» → Виберіть запит POST → Введіть URL-адресу https://jsonplaceholder.typicode.com/users → Перейдіть до розділу Body → Виберіть Raw > JSON → Введіть дані користувача → Send. Якщо запит виконаний коректно, ви побачите статус "201 Created".
-9. Зробіть аналіз всіх виконаних вами дій, опишіть зміст запиту та відповіді у табличному вигляді. Додайте до таблиці інформацію про HTTP заголовки, та передані параметри.
-10. Для кожного етапу роботи зробити знімки екрану та додати їх у звіт з описом кожного скіншота
-11. Додати програмний код завдання для самомтійного виконання
-12. Дати відповіді на контрольні запитання
-13. Зберегти звіт у форматі PDF
+
+9. Створіть власний сценарій, що імітує роботу простого API:
+    - Створіть PHP-скрипт (наприклад, `myapi.php`), який приймає HTTP-запити (GET, POST, PUT, DELETE) та повертає відповідь у форматі JSON.
+    - Реалізуйте обробку хоча б двох типів запитів (наприклад, GET повертає список об'єктів, POST додає новий об'єкт).
+    - Протестуйте цей скрипт у Postman: надішліть GET і POST-запити, переконайтесь у правильності відповіді.
+    - Додайте скріншоти запитів та відповідей до звіту.
+
+10. Зробіть аналіз всіх виконаних вами дій, опишіть зміст запиту та відповіді у табличному вигляді. Додайте до таблиці інформацію про HTTP заголовки, та передані параметри.
+11. Для кожного етапу роботи зробити знімки екрану та додати їх у звіт з описом кожного скіншота.
+12. Додати програмний код завдання для самомтійного виконання.
+13. Дати відповіді на контрольні запитання.
+14. Зберегти звіт у форматі PDF.
 
 ## Контрольні питання
 1. Що таке Postman і які завдання він вирішує в розробці програмного забезпечення?
@@ -68,6 +75,11 @@ Postman є надзвичайно корисним інструментом дл
 ## Довідники та додаткові матеріали
 1. [Postman](https://www.postman.com/)
 2. [Postman documentation](https://learning.postman.com/docs/introduction/overview/)
+3. [Знайомтесь, Postman - must have для QA](https://qagroup.com.ua/publications/znajomtes-postman-must-have-dlia-qa/)
+4. [Фичи Postman, которые облегчат жизнь тестировщика: пошаговая инструкция с видео](https://highload.today/blogs/fichi-postman-kotorye-oblegchat-zhizn-testirovshhika-poshagovaya-instruktsiya-s-video/)
+5. [Postman echo service](https://postman-echo.com/get)
+6. [{JSON} Placeholder Fake API](https://jsonplaceholder.typicode.com/)
+7. [JSON Placeholder Guide](https://jsonplaceholder.typicode.com/guide/)
 3. [Знайомтесь, Postman - must have для QA](https://qagroup.com.ua/publications/znajomtes-postman-must-have-dlia-qa/)
 4. [Фичи Postman, которые облегчат жизнь тестировщика: пошаговая инструкция с видео](https://highload.today/blogs/fichi-postman-kotorye-oblegchat-zhizn-testirovshhika-poshagovaya-instruktsiya-s-video/)
 5. [Postman echo service](https://postman-echo.com/get)
