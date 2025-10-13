@@ -1,0 +1,20 @@
+[
+    {
+        "id": 1,
+        "fullname": "Левицький Віктор Миколайович",
+        "username": "levitskyv",
+        "password": "$2y$12$HJ5UVwZCf5/foYXJgxQBEOWkXFj32LwwmFd17UH2jKQYWqnp4UkJu"
+    },
+    {
+        "id": 2,
+        "fullname": "Іванов Петро Михайлович",
+        "username": "petrov123",
+        "password": "$2y$12$HJ5UVwZCf5/foYXJgxQBEOWkXFj32LwwmFd17UH2jKQYWqnp4UkJu"
+    },
+    {
+        "id": 3,
+        "fullname": "Костенко Владислав Олександрович",
+        "username": "whitelakes",
+        "password": "$2y$12$HJ5UVwZCf5/foYXJgxQBEOWkXFj32LwwmFd17UH2jKQYWqnp4UkJu"
+    }
+]
