@@ -79,19 +79,33 @@ echo $dom_xml->save($path);
 
 ```xml
 <?xml version="1.0"?>
-  <car>
-    <model>BMW 525i</model>
-    <model>Ford Focus 2</model>
-  </car>
+  <cars>
+    <car>
+      <name>BMW</name>
+      <model>525i</model>
+    </car>
+    <car>
+      <name>Ford</name>
+      <model>Focus 2</model>
+    </car>
+  </cars>
 ```
 
 8. Розгляньте альтернативний до XML формат збереження даних JSON з наступним вмістом:
 
 ```json
-[
-  {"model":"BMW 525"},
-  {"model":"Ford Focus 2"}
-]
+{
+"cars":[
+    {
+      "name":"BMW",
+      "model":"525"
+    },
+    {
+      "name":"Ford",
+      "model":"Focus 2"
+    }
+  ]
+}
 ```
 
 Порівняйте структуру збережених даних. Зробіть висновки
@@ -128,12 +142,12 @@ echo $dom_xml->save($path);
 
 ## Приклади
 
-1. [Читання файлу XML](src/lab-08/read_persons_xml.php)
-2. [Записування у файл XML](src/lab-08/write_persons_xml.php)
-3. [Файл XML](src/lab-08/persons.xml)
-4. [Читання файлу JSON](src/lab-08/read_persons_json.php)
-2. [Записування у файл JSON](src/lab-08/write_persons_json.php)
-3. [Файл JSON](src/lab-08/persons.json)
+1. [Читання файлу XML](src/read_persons_xml.php)
+2. [Записування у файл XML](src/write_persons_xml.php)
+3. [Файл XML](src/persons.xml)
+4. [Читання файлу JSON](src/read_persons_json.php)
+5. [Записування у файл JSON](src/write_persons_json.php)
+6. [Файл JSON](src/persons.json)
 
 ## Довідники та додаткові матеріали
 
