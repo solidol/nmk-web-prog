@@ -160,8 +160,8 @@ $obj = new Car();
 
 ## Приклади
 
-1. [Приклад 1. Головний модуль](src/lab-13/index.php)
-2. [Приклад 1. Клас WebPageScraper](src/lab-13/WebPageScraper.php)
+1. [Приклад 1. Головний модуль](lab-13/src/index.php)
+2. [Приклад 1. Клас WebPageScraper](lab-13/src/WebPageScraper.php)
 
 ## Контрольні питання
 1. Що таке клас та екземпляр класу в ООП?
