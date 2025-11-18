@@ -5,8 +5,6 @@ class Model
     protected static $pdo = null;
     protected static $table = null;
 
-    protected array $attributes = [];
-
     public function __construct(PDO $pdo, $table, $data = null)
     {
         static::$pdo = $pdo;
@@ -15,19 +13,21 @@ class Model
             static::$table = $table;
         }
 
+        // Завантажуємо колонки таблиці → створюємо властивості
         $sql = "SHOW COLUMNS FROM `" . static::$table . "`";
         $stmt = $pdo->query($sql);
         $columns = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         foreach ($columns as $column) {
-            $field = $column['Field'];
-            $this->attributes[$field] = null;
+            $fn = $column['Field'];
+            $this->$fn = null;       // ← властивість напряму
         }
 
+        // Якщо передано дані — встановлюємо
         if ($data) {
             foreach ($data as $key => $value) {
-                if (array_key_exists($key, $this->attributes)) {
-                    $this->attributes[$key] = $value;
+                if (property_exists($this, $key)) {
+                    $this->$key = $value;
                 }
             }
         }
@@ -44,20 +44,6 @@ class Model
         return new static($pdo, $table);
     }
 
-    public function __get($name)
-    {
-        return $this->attributes[$name] ?? null;
-    }
-
-    public function __set($name, $value)
-    {
-        if (array_key_exists($name, $this->attributes)) {
-            $this->attributes[$name] = $value;
-        }
-    }
-
-    // ─────────────────────────────────────────────
-
     public static function all(PDO $pdo, $table = null)
     {
         static::init($pdo, $table);
@@ -70,7 +56,7 @@ class Model
         foreach ($rows as $row) {
             $model = static::createInstance(static::$pdo, static::$table);
             foreach ($row as $key => $value) {
-                $model->attributes[$key] = $value;
+                $model->$key = $value;
             }
             $models[] = $model;
         }
@@ -84,7 +70,6 @@ class Model
 
         $sql = "SELECT * FROM `" . static::$table . "` WHERE id = :id LIMIT 1";
         $stmt = static::$pdo->prepare($sql);
-
         $stmt->bindValue(':id', $id);
         $stmt->execute();
 
@@ -93,7 +78,7 @@ class Model
 
         $model = static::createInstance(static::$pdo, static::$table);
         foreach ($row as $key => $value) {
-            $model->attributes[$key] = $value;
+            $model->$key = $value;
         }
 
         return $model;
@@ -127,30 +112,21 @@ class Model
         $sql = "UPDATE `" . static::$table . "` SET $set WHERE id = :id";
         $stmt = static::$pdo->prepare($sql);
 
-        $stmt->bindValue(':id', $this->attributes['id']);
+        $stmt->bindValue(':id', $this->id);
 
         foreach ($data as $key => $value) {
             $stmt->bindValue(":$key", $value);
         }
 
-        $success = $stmt->execute();
-
-        if ($success) {
-            foreach ($data as $key => $value) {
-                $this->attributes[$key] = $value;
-            }
-        }
-
-        return $success;
+        return $stmt->execute();
     }
 
     public function delete()
     {
         $sql = "DELETE FROM `" . static::$table . "` WHERE id = :id";
         $stmt = static::$pdo->prepare($sql);
-
-        $stmt->bindValue(':id', $this->attributes['id']);
+        $stmt->bindValue(':id', $this->id);
 
         return $stmt->execute();
     }
-} 
+}
