@@ -36,6 +36,8 @@ print(f"<ul>{items}</ul>")
 
 Подайте схему, порівняння мов, код і результат запуску. Поясніть відмінність між сформованим HTML та його відображенням браузером. Зазначте використану версію Python; установлення Django для цього завдання не потрібне.
 
+[Критерії оцінювання](../README.md#оцінювання).
+
 ## Джерела
 
 1. Python Software Foundation. [More Control Flow Tools](https://docs.python.org/3/tutorial/controlflow.html).

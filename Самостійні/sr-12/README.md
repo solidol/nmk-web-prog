@@ -57,6 +57,8 @@ showLabel(new DetailedLabel());
 
 Подайте код і результати виклику трьох реалізацій. Поясніть, яке правило захищає інкапсуляція та який фрагмент демонструє поліморфізм. Наведіть приклад порушення контракту.
 
+[Критерії оцінювання](../README.md#оцінювання).
+
 ## Джерела
 
 1. PHP Documentation Group. [Visibility](https://www.php.net/manual/en/language.oop5.visibility.php).

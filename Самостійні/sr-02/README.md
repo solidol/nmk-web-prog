@@ -39,6 +39,8 @@ for ($i = 0; $i < $count; $i++) {
 
 Подайте таблицю, результат виконання та пояснення відмінностей. Для обраної мови порівняння додайте посилання на її офіційний довідник. Відокремте синтаксичну помилку від правильного запису з неочікуваною поведінкою.
 
+[Критерії оцінювання](../README.md#оцінювання).
+
 ## Джерела
 
 1. PHP Documentation Group. [Basic syntax](https://www.php.net/manual/en/language.basic-syntax.php).
@@ -46,3 +48,4 @@ for ($i = 0; $i < $count; $i++) {
 3. PHP Documentation Group. [Comparison Operators](https://www.php.net/manual/en/language.operators.comparison.php).
 4. PHP Documentation Group. [Type Juggling](https://www.php.net/manual/en/language.types.type-juggling.php).
 5. PHP Documentation Group. [for](https://www.php.net/manual/en/control-structures.for.php).
+6. MDN. [JavaScript: Grammar and types](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Grammar_and_types).

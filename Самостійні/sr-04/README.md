@@ -42,6 +42,8 @@ HTTP/2 server push дозволяє серверу ініціювати пере
 
 Подайте порівняння і сценарій запитів без видалення реальних даних. Окремо сформулюйте, чому server push не є методом HTTP. Вкажіть невизначеність назви PUSH.
 
+[Критерії оцінювання](../README.md#оцінювання).
+
 ## Джерела
 
 1. IANA. [HTTP Method Registry](https://www.iana.org/assignments/http-methods/http-methods.xhtml).

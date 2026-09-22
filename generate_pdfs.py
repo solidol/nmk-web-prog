@@ -12,7 +12,7 @@ from pathlib import Path
 from urllib.parse import unquote, urlsplit
 
 ROOT = Path(__file__).resolve().parent
-GROUPS = (("Уроки", "less-*"), ("Практичні", "pract-*"))
+GROUPS = (("Лекції", "lec-*"), ("Лабораторні", "lab-*"), ("Самостійні", "sr-*"))
 CSS = """
 @page { size: A4; margin: 18mm 17mm 20mm; }
 body { font-family: Arial, 'Segoe UI', sans-serif; font-size: 10.5pt;

@@ -43,10 +43,12 @@ echo $copy->hours . PHP_EOL;   // 4
 
 Подайте код, результати перевірок та коротке обґрунтування вибору між `stdClass`, масивом і власним класом. Поясніть, де виконуватиметься перевірка полів курсу.
 
+[Критерії оцінювання](../README.md#оцінювання).
+
 ## Джерела
 
 1. PHP Documentation Group. [stdClass](https://www.php.net/manual/en/class.stdclass.php).
 2. PHP Documentation Group. [Objects](https://www.php.net/manual/en/language.types.object.php).
-3. PHP Documentation Group. [Classes: The Basics](https://www.php.net/manual/en/language.oop5.basic.php).
+3. PHP Documentation Group. [Object Cloning](https://www.php.net/manual/en/language.oop5.cloning.php).
 4. PHP Documentation Group. [Properties](https://www.php.net/manual/en/language.oop5.properties.php).
 5. PHP Documentation Group. [json_decode](https://www.php.net/manual/en/function.json-decode.php).
