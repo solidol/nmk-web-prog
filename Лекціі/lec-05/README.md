@@ -1,4 +1,4 @@
-# Лекція 5. HTTP-запити та методи POST, GET й інші
+# Лекція 5. Обробка HTTP-запитів у PHP: методи та суперглобальні масиви
 
 [Перелік лекцій](../README.md)
 
@@ -24,6 +24,8 @@ Content-Type: application/json
 
 У HTTP/2 і HTTP/3 спосіб передавання повідомлень інший, але значення методів і кодів стану зберігається.
 
+У PHP вебсервер передає відомості про запит скрипту. Метод можна прочитати через `$_SERVER['REQUEST_METHOD']`, параметри URL — через `$_GET`, а поля звичайної POST-форми — через `$_POST`. Усі дані, отримані від клієнта, потрібно перевіряти перед використанням.
+
 ## Метод POST
 
 `POST` передає дані серверу для обробки за правилами цільового ресурсу. Типові приклади: створення замовлення, надсилання форми, завантаження файлу. Дані зазвичай містяться в тілі запиту; `Content-Type` указує їхній формат. При створенні ресурсу сервер може повернути `201 Created` і його адресу в `Location`. Інші успішні результати можуть мати коди `200 OK` або `204 No Content`.
@@ -37,6 +39,46 @@ HTML-форма з `method="post"` передає значення полів у
 - `text/plain` — простий текстовий формат, рідкісний у практичній обробці форм.
 
 Це **типи вмісту**, а не HTTP-методи. Поза HTML-формами тіло `POST` може бути й у форматі JSON.
+
+Приклад форми та її обробника `order.php`:
+
+```html
+<form action="order.php" method="post">
+    <label>Товар: <input name="product" required></label>
+    <button type="submit">Надіслати</button>
+</form>
+```
+
+```php
+<?php
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    http_response_code(405);
+    header('Allow: POST');
+    exit;
+}
+
+$product = $_POST['product'] ?? '';
+if (!is_string($product) || trim($product) === '') {
+    http_response_code(400);
+    exit('Укажіть товар');
+}
+
+header('Content-Type: text/html; charset=UTF-8');
+echo 'Отримано: ' . htmlspecialchars($product, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+```
+
+`$_POST` містить поля форми, надіслані методом `POST` з типом `application/x-www-form-urlencoded` або `multipart/form-data`. Якщо клієнт надіслав JSON, `$_POST` його автоматично не розбирає:
+
+```php
+<?php
+$data = json_decode(file_get_contents('php://input'), true);
+if (!is_array($data)) {
+    http_response_code(400);
+    exit('Некоректний JSON');
+}
+```
+
+У реальному обробнику додатково перевіряють `Content-Type`, типи й допустимі значення полів.
 
 ## Метод GET
 
@@ -53,6 +95,20 @@ Accept: application/json
 URL може зберігатися в історії браузера, закладках і журналах сервера. Не передавайте в його параметрах паролі чи інші секрети. Тіло в запиті `GET` не має загальновизначеної семантики, тому для передавання даних слід використовувати URL або інший метод.
 
 HTML-форма з `method="get"` додає поля до URL. Якщо `method` не вказано, типовим для форми є `GET`. Відповіді на `GET` можуть кешуватися за правилами HTTP.
+
+Наприклад, `/search.php?q=php` дає значення `php` у `$_GET['q']`. `$_GET` описує параметри URL незалежно від HTTP-методу: запит `POST /search.php?q=php` також матиме це значення в `$_GET`.
+
+```php
+<?php
+$query = $_GET['q'] ?? '';
+if (!is_string($query)) {
+    http_response_code(400);
+    exit('Некоректний запит');
+}
+
+header('Content-Type: text/html; charset=UTF-8');
+echo 'Пошук: ' . htmlspecialchars($query, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+```
 
 ## Інші методи
 
@@ -80,6 +136,54 @@ HTML-форма з `method="get"` додає поля до URL. Якщо `method
 
 `TRACE` призначений для діагностики: сервер повертає отриманий запит. Багато серверів вимикають його з міркувань безпеки. `CONNECT` просить посередника встановити тунель до цільового сервера; типовий приклад — з'єднання через HTTP-проксі.
 
+Для `PUT`, `PATCH` і `DELETE` PHP зазвичай не заповнює `$_POST`. Метод визначають через `$_SERVER['REQUEST_METHOD']`, а тіло, якщо воно потрібне, читають через `php://input` та розбирають відповідно до `Content-Type`. Файли у `$_FILES` стосуються стандартного завантаження через POST-форму.
+
+## Суперглобальні масиви PHP
+
+**Суперглобальні змінні** доступні в будь-якій області видимості скрипту, зокрема всередині функції, без оголошення `global`. Більшість із них — асоціативні масиви. Їхній вміст залежить від запиту, налаштувань PHP та стану застосунку.
+
+| Змінна | Що містить | Приклад |
+| --- | --- | --- |
+| `$_GET` | Параметри рядка запиту URL | `$_GET['q']` |
+| `$_POST` | Поля POST-форми | `$_POST['product']` |
+| `$_FILES` | Метадані та тимчасові шляхи завантажених файлів | `$_FILES['photo']['error']` |
+| `$_SERVER` | Дані сервера й поточного запиту | `$_SERVER['REQUEST_METHOD']` |
+| `$_COOKIE` | Значення cookie з поточного запиту | `$_COOKIE['theme']` |
+| `$_SESSION` | Дані сесії після `session_start()` | `$_SESSION['user_id']` |
+| `$_REQUEST` | Поєднання даних GET, POST і, залежно від налаштувань, COOKIE | `$_REQUEST['q']` |
+| `$_ENV` | Змінні середовища, якщо вони доступні за налаштуванням PHP | `$_ENV['APP_MODE']` |
+| `$GLOBALS` | Посилання на змінні глобальної області видимості | `$GLOBALS['counter']` |
+
+`$_REQUEST` не показує, звідки саме надійшло значення, а його склад і порядок залежать від `request_order` та `variables_order`. Коли джерело важливе, звертайтеся безпосередньо до `$_GET`, `$_POST` або `$_COOKIE`. Значення з цих масивів не можна вважати перевіреними.
+
+### Завантаження файлів
+
+Для файлу в HTML-формі потрібні `method="post"` і `enctype="multipart/form-data"`:
+
+```html
+<form action="upload.php" method="post" enctype="multipart/form-data">
+    <input type="file" name="photo">
+    <button type="submit">Завантажити</button>
+</form>
+```
+
+PHP розміщує відомості про нього в `$_FILES['photo']`: `name`, `type`, `tmp_name`, `error`, `size`. Спочатку перевіряють `error`, розмір і фактичний тип файлу; клієнтським `name` та `type` не довіряють. Збереження виконують через `move_uploaded_file()` у підготовлений каталог.
+
+### Cookie та сесія
+
+`$_COOKIE` містить cookie, які браузер надіслав **у поточному запиті**. Після виклику `setcookie()` нове значення з'явиться в `$_COOKIE` лише в наступному запиті. `$_SESSION` зберігає дані між запитами на боці сервера; перед роботою з ним викликають `session_start()` до виведення вмісту:
+
+```php
+<?php
+session_start();
+$_SESSION['visits'] = ($_SESSION['visits'] ?? 0) + 1;
+echo $_SESSION['visits'];
+```
+
+### Перевірка та виведення даних
+
+Ключ може бути відсутній, а значення поля може виявитися масивом, якщо клієнт надішле ім'я на кшталт `q[]`. Тому перевіряйте наявність, тип і допустимість значень. Для чисел зручно використовувати `filter_input()` або `filter_var()`; перед вставленням тексту в HTML застосовуйте `htmlspecialchars()`. Для запитів до бази даних використовуйте параметризовані запити. Екранування для HTML не замінює перевірки даних чи захисту SQL-запитів.
+
 ## Порівняння методів
 
 | Метод | Типове призначення | Безпечний | Ідемпотентний |
@@ -102,14 +206,14 @@ HTML-форма з `method="get"` додає поля до URL. Якщо `method
 
 1. З яких частин складаються HTTP-запит і HTTP-відповідь?
 2. Яке призначення `POST` і де зазвичай розміщують його дані?
-3. Чим відрізняються `application/x-www-form-urlencoded` і `multipart/form-data`?
-4. Для яких завдань використовують `GET` і де передають параметри пошуку?
-5. Чому секретні дані не варто передавати в параметрах URL?
+3. Чим відрізняються `application/x-www-form-urlencoded` і `multipart/form-data` та як PHP отримує їхні поля?
+4. Для яких завдань використовують `GET` і в якому масиві PHP доступні параметри URL?
+5. Чому секретні дані не варто передавати в параметрах URL? Чому не слід довіряти значенням `$_GET`?
 6. Що означають властивості «безпечний» та «ідемпотентний»?
-7. Чим відрізняються `POST`, `PUT` і `PATCH`?
+7. Чим відрізняються `POST`, `PUT` і `PATCH` та як у PHP прочитати JSON із тіла запиту?
 8. Чому повторний `DELETE` може мати інший код відповіді?
-9. Коли доцільно використовувати `HEAD` та `OPTIONS`?
-10. Для чого призначені `TRACE` і `CONNECT`?
+9. Яке призначення `$_FILES`, `$_COOKIE` та `$_SESSION`?
+10. Чому краще явно вибирати `$_GET` чи `$_POST`, а не покладатися на `$_REQUEST`?
 
 ## Джерела
 
@@ -117,3 +221,7 @@ HTML-форма з `method="get"` додає поля до URL. Якщо `method
 - [RFC 5789: PATCH Method for HTTP](https://www.rfc-editor.org/rfc/rfc5789.html) — семантика `PATCH` (англійською).
 - [MDN: HTTP request methods](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Methods) — огляд методів (англійською).
 - [MDN: Sending form data](https://developer.mozilla.org/en-US/docs/Learn_web_development/Extensions/Forms/Sending_and_retrieving_form_data) — передавання даних HTML-форм (англійською).
+- [PHP Manual: Суперглобальні змінні](https://www.php.net/manual/uk/language.variables.superglobals.php) — перелік та область видимості (українською).
+- [PHP Manual: `$_GET`](https://www.php.net/manual/uk/reserved.variables.get.php), [`$_POST`](https://www.php.net/manual/uk/reserved.variables.post.php), [`$_FILES`](https://www.php.net/manual/uk/reserved.variables.files.php) — дані запитів і файлів (українською).
+- [PHP Manual: `$_REQUEST`](https://www.php.net/manual/en/reserved.variables.request.php) — склад і налаштування масиву (англійською).
+- [PHP Manual: Завантаження файлів методом POST](https://www.php.net/manual/en/features.file-upload.post-method.php) — обробка файлів (англійською).
