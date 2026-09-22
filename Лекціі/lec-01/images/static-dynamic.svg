@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="330" viewBox="0 0 960 330" role="img" aria-labelledby="title desc">
+  <title id="title">Статичний і динамічний вміст</title>
+  <desc id="desc">Статична відповідь використовує готовий файл. Динамічна відповідь формується програмою з параметрів і даних. Обидва результати передаються браузеру.</desc>
+  <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#24578a"/></marker></defs>
+  <rect width="960" height="330" rx="16" fill="#f5f8fc"/>
+  <g font-family="Arial, sans-serif" fill="#18324d" text-anchor="middle">
+    <text x="480" y="36" font-size="23" font-weight="bold">Звідки береться вміст відповіді?</text>
+    <g stroke="#24578a" stroke-width="2" fill="#e0edfc">
+      <rect x="30" y="75" width="220" height="70" rx="12"/>
+      <rect x="355" y="75" width="245" height="70" rx="12"/>
+      <rect x="30" y="205" width="220" height="70" rx="12"/>
+      <rect x="355" y="205" width="245" height="70" rx="12"/>
+      <rect x="730" y="140" width="200" height="80" rx="12" fill="#e3f2ec" stroke="#28735a"/>
+    </g>
+    <g font-size="21">
+      <text x="140" y="105">Готовий файл</text><text x="140" y="132">логотип або HTML</text>
+      <text x="478" y="117">Віддавання файла</text>
+      <text x="140" y="235">Параметри запиту</text><text x="140" y="262">та дані</text>
+      <text x="478" y="235">Виконання PHP</text><text x="478" y="262">формування HTML</text>
+      <text x="830" y="187" font-size="25" font-weight="bold">Браузер</text>
+    </g>
+    <g fill="none" stroke="#24578a" stroke-width="3" marker-end="url(#arrow)">
+      <path d="M250 110H345"/><path d="M250 240H345"/>
+      <path d="M600 110H670V163H720"/><path d="M600 240H670V197H720"/>
+    </g>
+    <text x="478" y="66" font-size="18">Статичний шлях</text>
+    <text x="478" y="196" font-size="18">Динамічний шлях</text>
+    <text x="480" y="312" font-size="18">Обидва способи можуть використовуватися на одному сайті</text>
+  </g>
+</svg>

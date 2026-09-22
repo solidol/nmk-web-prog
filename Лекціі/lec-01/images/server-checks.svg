@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="370" viewBox="0 0 960 370" role="img" aria-labelledby="title desc">
+  <title id="title">Перевірка даних і прав доступу</title>
+  <desc id="desc">Дані клієнта проходять серверні перевірки формату і прав доступу. Успішні перевірки дозволяють виконати дію. Невдала перевірка веде до відмови без зміни даних. Показано лише частину перевірок.</desc>
+  <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#24578a"/></marker></defs>
+  <rect width="960" height="370" rx="16" fill="#f5f8fc"/>
+  <rect x="230" y="20" width="710" height="320" rx="14" fill="#eef5fb" stroke="#8199b1" stroke-dasharray="7 5"/>
+  <g font-family="Arial, sans-serif" fill="#18324d" text-anchor="middle">
+    <text x="585" y="51" font-size="22" font-weight="bold">Перевірки на сервері</text>
+    <g fill="#e0edfc" stroke="#24578a" stroke-width="2">
+      <rect x="20" y="100" width="160" height="90" rx="12"/>
+      <rect x="260" y="100" width="190" height="90" rx="12"/>
+      <rect x="510" y="100" width="190" height="90" rx="12"/>
+      <rect x="760" y="100" width="160" height="90" rx="12" fill="#e3f2ec" stroke="#28735a"/>
+      <rect x="330" y="255" width="400" height="60" rx="12" fill="#fff0e4" stroke="#996132"/>
+    </g>
+    <g font-size="21">
+      <text x="100" y="138">Дані</text><text x="100" y="165">клієнта</text>
+      <text x="355" y="138">Формат</text><text x="355" y="165">допустимий?</text>
+      <text x="605" y="138">Дію</text><text x="605" y="165">дозволено?</text>
+      <text x="840" y="138">Виконати</text><text x="840" y="165">дію</text>
+      <text x="530" y="292">Відмова без зміни даних</text>
+    </g>
+    <g fill="none" stroke="#24578a" stroke-width="2.5" marker-end="url(#arrow)">
+      <path d="M180 145H250"/><path d="M450 145H500"/><path d="M700 145H750"/>
+      <path d="M355 190V245"/><path d="M605 190V245"/>
+    </g>
+    <g font-size="18"><text x="480" y="132">Так</text><text x="730" y="132">Так</text><text x="376" y="226">Ні</text><text x="626" y="226">Ні</text></g>
+    <text x="480" y="359" font-size="17">Спрощена схема: інші захисні перевірки, зокрема CSRF, тут не показано</text>
+  </g>
+</svg>
