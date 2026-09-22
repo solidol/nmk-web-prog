@@ -17,8 +17,8 @@
       <text x="860" y="173">MariaDB</text>
     </g>
     <g fill="none" stroke="#24578a" stroke-width="2.5" marker-end="url(#arrow)">
-      <path d="M 100 114 V 80 H 350 V 108"/><path d="M 350 114 V 80 H 605 V 108"/><path d="M 605 114 V 80 H 860 V 108"/>
-      <path d="M 860 218 V 257 H 605 V 224"/><path d="M 605 218 V 257 H 350 V 224"/><path d="M 350 218 V 257 H 100 V 224"/>
+      <path d="M 140 114 V 80 H 310 V 108"/><path d="M 390 114 V 80 H 565 V 108"/><path d="M 645 114 V 80 H 820 V 108"/>
+      <path d="M 820 218 V 257 H 645 V 224"/><path d="M 565 218 V 257 H 390 V 224"/><path d="M 310 218 V 257 H 140 V 224"/>
     </g>
     <g font-size="18">
       <text x="220" y="70">HTTP</text><text x="478" y="70">FastCGI</text><text x="737" y="70">SQL-запит</text>
