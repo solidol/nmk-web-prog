@@ -1,68 +1,73 @@
+<?php
+// Заготовка отримання даних; перевірку облікових даних додає студент.
+$errors = [];
+$login = '';
+$received = false;
+
+if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
+    $rawLogin = $_POST['login'] ?? null;
+    $password = $_POST['password'] ?? null;
+
+    if (!is_string($rawLogin) || !is_string($password)) {
+        $errors[] = 'Логін і пароль мають бути рядками.';
+    } else {
+        $login = trim($rawLogin);
+        if ($login === '' || $password === '') {
+            $errors[] = 'Заповніть логін і пароль.';
+        } else {
+            $received = true;
+        }
+    }
+}
+
+function escapeHtml(string $value): string
+{
+    return htmlspecialchars($value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+}
+?>
 <!DOCTYPE html>
 <html lang="uk">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LR 5</title>
+    <title>Лабораторна робота 5 — отримання даних</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-        }
-        h1 {
-            color: #333;
-        }
-        form {
-            margin-top: 20px;
-        }
-        div {
-            margin-bottom: 10px;
-        }
-        input[type="text"] {
-            padding: 5px;
-            width: 100%;
-            max-width: 300px;
-            box-sizing: border-box;
-        }
-        input[type="submit"] {
-            padding: 5px 10px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            cursor: pointer;
-        }
-        input[type="submit"]:hover {
-            background-color: #45a049;
-        }
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        h1 { color: #333; }
+        form { margin-top: 20px; }
+        .field { margin-bottom: 10px; }
+        label { display: block; }
+        input { padding: 5px; width: 100%; max-width: 300px; box-sizing: border-box; }
+        button { padding: 5px 10px; cursor: pointer; }
     </style>
 </head>
 <body>
+    <h1>Форма входу</h1>
+    <p>Навчальна заготовка: дані отримуються без створення сеансу входу.</p>
 
-    <h1>Вхід на сайт</h1>
+    <?php if ($errors !== []): ?>
+        <ul role="alert">
+            <?php foreach ($errors as $error): ?>
+                <li><?= escapeHtml($error) ?></li>
+            <?php endforeach; ?>
+        </ul>
+    <?php endif; ?>
 
-    <div>
-        <?php
-        $login = isset($_POST['login']) ? htmlspecialchars($_POST['login']) : "";
-        $password = isset($_POST['password']) ? htmlspecialchars($_POST['password']) : "";
+    <?php if ($received): ?>
+        <p>Дані отримано для перевірки. Логін: <?= escapeHtml($login) ?></p>
+    <?php endif; ?>
 
-        if ($login || $password) {
-            echo "<p>Ваш логін: $login</p>";
-            echo "<p>Ваш пароль: $password</p>";
-        }
-        ?>
-    </div>
-
-    <form method="POST">
-        <div>
-            Логін: <input type="text" name="login" required>
+    <form method="post">
+        <div class="field">
+            <label for="login">Логін</label>
+            <input id="login" type="text" name="login"
+                   value="<?= escapeHtml($login) ?>" required>
         </div>
-        <div>
-            Пароль: <input type="text" name="password" required>
+        <div class="field">
+            <label for="password">Пароль</label>
+            <input id="password" type="password" name="password" required>
         </div>
-        <div>
-            <input type="submit" value="Увійти">
-        </div>
+        <button type="submit">Надіслати</button>
     </form>
-
 </body>
 </html>
