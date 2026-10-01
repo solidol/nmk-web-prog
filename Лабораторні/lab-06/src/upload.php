@@ -1,54 +1,60 @@
 <?php
-$message = '';
-if (isset($_FILES['myfile']) && $_FILES['myfile']['error'] === 0) {
-    $uploadDir = __DIR__ . '/uploads/';
-    if (!is_dir($uploadDir)) {
-        mkdir($uploadDir, 0777, true);
-    }
-    $filename = basename($_FILES['myfile']['name']);
-    $target = $uploadDir . $filename;
-    $fileType = mime_content_type($_FILES['myfile']['tmp_name']);
-    $fileSize = $_FILES['myfile']['size'];
-    // Перевірка типу та розміру файлу
-    if ($fileSize <= 1048576 && $fileType === 'text/plain') {
-        if (move_uploaded_file($_FILES['myfile']['tmp_name'], $target)) {
-            $message = "Файл успішно завантажено: <b>" . htmlspecialchars($filename) . "</b> (" . round($fileSize/1024, 2) . " КБ)";
-            // Вивід вмісту файлу
-            $content = file_get_contents($target);
-            $message .= "<h3>Вміст файлу:</h3><pre style='background:#f4f4f4;padding:1em;border-radius:4px;'>" . htmlspecialchars($content) . "</pre>";
-        } else {
-            $message = "Помилка при завантаженні файлу.";
+require __DIR__ . '/common.php';
+$error = '';
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    try {
+        checkCsrf();
+        $file = $_FILES['myfile'] ?? null;
+        if (!is_array($file) || !isset($file['error']) || !is_int($file['error'])) {
+            throw new RuntimeException('Очікується один текстовий файл.');
         }
-    } else {
-        $message = "Файл має бути текстовим (.txt) і не перевищувати 1 МБ.";
+        if ($file['error'] !== UPLOAD_ERR_OK) {
+            throw new RuntimeException('Файл не отримано. Оберіть файл і перевірте ліміти PHP.');
+        }
+        if (!is_string($file['name'] ?? null) || !is_string($file['tmp_name'] ?? null)
+            || !is_uploaded_file($file['tmp_name'])) {
+            throw new RuntimeException('Некоректне завантаження.');
+        }
+        if (strtolower(pathinfo($file['name'], PATHINFO_EXTENSION)) !== 'txt') {
+            throw new RuntimeException('Дозволено лише розширення .txt.');
+        }
+        $size = filesize($file['tmp_name']);
+        if ($size === false || $size === 0 || $size > 102400) {
+            throw new RuntimeException('Розмір файлу має бути від 1 байта до 100 КіБ.');
+        }
+        $mime = (new finfo(FILEINFO_MIME_TYPE))->file($file['tmp_name']);
+        if ($mime !== 'text/plain') {
+            throw new RuntimeException('Вміст має визначатися як звичайний текст.');
+        }
+        $text = file_get_contents($file['tmp_name']);
+        if ($text === false) {
+            throw new RuntimeException('Не вдалося прочитати завантаження.');
+        }
+        validateText($text);
+        $name = newFilename();
+        if (!move_uploaded_file($file['tmp_name'], storageDir() . '/' . $name)) {
+            throw new RuntimeException('Не вдалося зберегти файл.');
+        }
+        header('Location: read_file.php?file=' . rawurlencode($name), true, 303);
+        exit;
+    } catch (RuntimeException $exception) {
+        $error = $exception->getMessage();
     }
 }
 ?>
-<!DOCTYPE html>
+<!doctype html>
 <html lang="uk">
-<head>
-    <meta charset="UTF-8">
-    <title>Завантаження файлу</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 2em; }
-        form { background: #f9f9f9; padding: 1em; border-radius: 6px; max-width: 400px; }
-        input[type="file"] { margin-bottom: 1em; }
-        input[type="submit"] { padding: 0.5em 1em; }
-        .msg { margin: 1em 0; padding: 1em; background: #e7f7e7; border-left: 4px solid #4caf50; }
-        .error { background: #fbeaea; border-left: 4px solid #f44336; }
-    </style>
-</head>
+<head><meta charset="UTF-8"><title>Імпорт тексту</title></head>
 <body>
-    <h1>Завантаження текстового файлу</h1>
-    <?php if ($message): ?>
-        <div class="msg<?php echo (strpos($message, 'успішно') === false ? ' error' : ''); ?>">
-            <?php echo $message; ?>
-        </div>
-    <?php endif; ?>
-    <form action="upload.php" method="post" enctype="multipart/form-data">
-        <label for="myfile">Оберіть файл:</label><br>
-        <input type="file" name="myfile" id="myfile" accept=".txt"><br>
-        <input type="submit" value="Завантажити">
-    </form>
+<h1>Імпорт допису для клубу</h1>
+<p>Один непорожній файл .txt у UTF-8, до 100 КіБ.</p>
+<?php if ($error !== ''): ?><p role="alert"><?= e($error) ?></p><?php endif; ?>
+<form action="upload.php" method="post" enctype="multipart/form-data">
+    <input type="hidden" name="csrf" value="<?= e($_SESSION['csrf']) ?>">
+    <label for="myfile">Текст допису</label>
+    <input type="file" id="myfile" name="myfile" accept=".txt,text/plain" required>
+    <button type="submit">Імпортувати</button>
+</form>
+<p><a href="write_1.php">Створити нотатку вручну</a></p>
 </body>
 </html>
