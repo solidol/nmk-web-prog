@@ -1,42 +1,25 @@
 <?php
-// Розмір та кольори
-$width = 400;
-$height = 400;
-$total = 360; // Всього градусів
+declare(strict_types=1);
+require __DIR__ . '/common.php';
 
-// Сектори та їхні відсотки
-$sectors = [
-    ['color' => 'red', 'percentage' => 40, 'label' => 'Sector 1'],
-    ['color' => 'green', 'percentage' => 30, 'label' => 'Sector 2'],
-    ['color' => 'blue', 'percentage' => 30, 'label' => 'Sector 3']
-];
-
-// Початок SVG-зображення
-header('Content-Type: image/svg+xml');
-echo '<?xml version="1.0" encoding="UTF-8" standalone="no"?>';
-echo '<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" ';
-echo '"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">';
-echo '<svg width="' . $width . '" height="' . $height . '" version="1.1" xmlns="http://www.w3.org/2000/svg">';
-
-// Розрахунок кутів секторів
-$start_angle = 0;
-foreach ($sectors as $sector) {
-    $angle = ($sector['percentage'] / 100) * $total;
-    $end_angle = $start_angle + $angle;
-
-    // Розрахунок координат для кругового сектора
-    $start_x = $width / 2 + cos(deg2rad($start_angle)) * ($width / 2);
-    $start_y = $height / 2 + sin(deg2rad($start_angle)) * ($height / 2);
-    $end_x = $width / 2 + cos(deg2rad($end_angle)) * ($width / 2);
-    $end_y = $height / 2 + sin(deg2rad($end_angle)) * ($height / 2);
-
-    // Виведення кругового сектора
-    echo '<path d="M ' . $width / 2 . ' ' . $height / 2 . ' L ' . $start_x . ' ' . $start_y . ' A ' . $width / 2 . ' ' . $height / 2 . ' 0 ' . ($angle > 180 ? 1 : 0) . ' 1 ' . $end_x . ' ' . $end_y . ' Z" fill="' . $sector['color'] . '" />';
-
-    // Переміщення початку наступного сектора
-    $start_angle = $end_angle;
-}
-
-// Закінчення SVG-зображення
-echo '</svg>';
-?>
+runImage(function (): void {
+    [$width, $height] = chartSize();
+    $layout = barLayout(loadChartData(), $width, $height);
+    $svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' . $width . ' ' . $height
+        . '" width="' . $width . '" height="' . $height . '" role="img" aria-labelledby="title desc">';
+    $svg .= '<title id="title">Активності клубу</title><desc id="desc">Стовпчаста діаграма; точні значення підписано біля стовпців.</desc>';
+    $svg .= '<rect width="100%" height="100%" fill="white"/>';
+    $svg .= '<path d="M 55 45 V ' . $layout['bottom'] . ' H ' . ($width - 25) . '" fill="none" stroke="#1e293b"/>';
+    $svg .= '<g font-family="sans-serif" font-size="13" fill="#1e293b">';
+    $svg .= '<text x="10" y="55">' . $layout['max'] . '</text><text x="30" y="' . $layout['bottom'] . '">0</text>';
+    foreach ($layout['bars'] as $bar) {
+        $svg .= '<rect x="' . $bar['x1'] . '" y="' . $bar['y'] . '" width="' . ($bar['x2'] - $bar['x1'])
+            . '" height="' . ($bar['bottom'] - $bar['y']) . '" fill="#2563eb"/>';
+        $svg .= '<text x="' . $bar['x1'] . '" y="' . ($bar['y'] - 8) . '">' . $bar['value'] . '</text>';
+        $svg .= '<text x="' . $bar['x1'] . '" y="' . ($bar['bottom'] + 22) . '">' . xmlText($bar['label']) . '</text>';
+    }
+    $svg .= '</g></svg>';
+    header('Content-Type: image/svg+xml; charset=UTF-8');
+    header('X-Content-Type-Options: nosniff');
+    echo $svg;
+});

@@ -1,43 +1,25 @@
 <?php
-// Розміри та кольори
-$width = 400;
-$height = 300;
+declare(strict_types=1);
+require __DIR__ . '/common.php';
 
-// Створення нового зображення
-$image = imagecreatetruecolor($width, $height);
-$background_color = imagecolorallocate($image, 255, 255, 255);
-$bar_color = imagecolorallocate($image, 0, 0, 255);
-$border_color = imagecolorallocate($image, 0, 0, 0);
-
-// Дані для стовпчатої діаграми (як висоти стовпців)
-$data = [20, 50, 30, 80, 40];
-
-// Кількість стовпців та їх відступи
-$num_bars = count($data);
-$bar_width = $width / $num_bars;
-$bar_spacing = 10;
-
-// Створення нового зображення
-$image = imagecreatetruecolor($width, $height);
-
-// Заповнення фону
-imagefill($image, 0, 0, $background_color);
-
-// Малювання стовпчатої діаграми
-for ($i = 0; $i < $num_bars; $i++) {
-    $x1 = $i * ($bar_width + $bar_spacing);
-    $x2 = $x1 + $bar_width;
-    $y1 = $height - $data[$i];
-    $y2 = $height;
-
-    imagefilledrectangle($image, $x1, $y1, $x2, $y2, $bar_color);
-    imagerectangle($image, $x1, $y1, $x2, $y2, $border_color);
-}
-
-// Виведення зображення
-header('Content-Type: image/png');
-imagepng($image);
-
-// Звільнення ресурсів
-imagedestroy($image);
-?>
+runImage(function (): void {
+    [$width, $height] = chartSize();
+    $data = loadChartData();
+    $layout = barLayout($data, $width, $height);
+    $image = canvas($width, $height);
+    $ink = imagecolorallocate($image, 30, 41, 59);
+    $blue = imagecolorallocate($image, 37, 99, 235);
+    imageline($image, $layout['left'], $layout['top'], $layout['left'], $layout['bottom'], $ink);
+    imageline($image, $layout['left'], $layout['bottom'], $width - 25, $layout['bottom'], $ink);
+    imagestring($image, 3, 10, $layout['top'], (string) $layout['max'], $ink);
+    imagestring($image, 3, 30, $layout['bottom'] - 12, '0', $ink);
+    foreach ($layout['bars'] as $bar) {
+        if ($bar['value'] > 0) {
+            imagefilledrectangle($image, $bar['x1'], $bar['y'], $bar['x2'], $bar['bottom'] - 1, $blue);
+        }
+        imagestring($image, 3, $bar['x1'], $bar['y'] - 18, (string) $bar['value'], $ink);
+        imagestring($image, 3, $bar['x1'], $bar['bottom'] + 10, $bar['label'], $ink);
+    }
+    imagestring($image, 4, 55, 12, 'Club activities', $ink);
+    sendPng($image);
+});
