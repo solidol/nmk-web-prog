@@ -1,4 +1,4 @@
-[Перелік усіх робіт](README.md)
+[Перелік усіх робіт](../README.md)
 
 # Лабораторна робота №3. Комбінування розмітки HTML та сценарію PHP. Використання функцій
 
@@ -8,13 +8,15 @@
 
 ## Обладнання
 
-Персональний комп'ютер. Пакет програм XAMPP. Текстовий редактор Sublime Text 3 або IDE NetBeans. Web-браузер Chrome, Firefox, Opera
+Основне навчальне середовище — **OSPanel 6+ з PHP 8.1**. Альтернатива — **XAMPP із PHP 8.1**. Налаштування домену, каталогів і консолі наведено в [пам’ятці середовища](../../ENVIRONMENT.md).
+
+Персональний комп'ютер. OSPanel 6+ із PHP 8.1 (альтернатива — XAMPP із PHP 8.1). Текстовий редактор Sublime Text 3 або IDE NetBeans. Web-браузер Chrome, Firefox, Opera
 
 ## Хід роботи
 
-1. Впевніться, що пакет XAMPP встановлено та web-сервер Apache запущений
-2. Перейдіть до каталогу `C:\xampp\htdocs\` та очистіть його
-3. В каталогу `C:\xampp\htdocs\` створіть файли з іменем index.html
+1. Запустіть OSPanel 6+ із PHP 8.1 та Apache для проєкту (альтернатива — XAMPP із PHP 8.1).
+2. Створіть окремий каталог `lab-03` у публічному каталозі проєкту OSPanel; для XAMPP — `C:\xampp\htdocs\lab-03`. Інші проєкти не видаляйте.
+3. У каталозі цієї лабораторної створіть файли з іменем index.html
 4. Відкрийте index.html та оформити наступний HTML-шаблон:
 
 ```html
@@ -38,9 +40,9 @@
 Зберегти файл
 
 5. Впевніться, що файл є валідним, використавши валідатор HTML-коду https://validator.w3.org/. За необхідності, виправте помилки та зауваження
-6. В каталогу C:\xampp\htdocs\ створіть файли з іменем index.php
+6. У каталозі цієї лабораторної створіть файли з іменем index.php
 7. В даний файл скопіювати зміст файлу index.html
-8. Перейдіть за адресою http://127.0.0.1/index.php або http://localhost/index.php та впевніться, що завантажилася ваша HTML-сторінка
+8. Перейдіть за адресою http://web-prog.local/lab-03/index.php або http://web-prog.local/lab-03/index.php та впевніться, що завантажилася ваша HTML-сторінка
 9. Відкрийте index.php та змінити його наступним чином:
     
 ```php
@@ -143,6 +145,14 @@
 3. Які аргументи можна задати для функції date()?
 4. Який з варіантів команди `echo` правильний: `echo ($abc);` чи `acho $abc;`? Чому?
 5. Як за допомогою вкладених циклів побудувати порожню HTML-таблицю?
+
+## Джерела
+
+1. PHP Documentation Group. [User-defined functions](https://www.php.net/manual/en/functions.user-defined.php).
+2. PHP Documentation Group. [Escaping from HTML](https://www.php.net/manual/en/language.basic-syntax.phpmode.php).
+3. PHP Documentation Group. [Arrays](https://www.php.net/manual/en/language.types.array.php).
+4. PHP Documentation Group. [phpinfo](https://www.php.net/manual/en/function.phpinfo.php).
+5. OSPanel. [Official documentation](https://github.com/OSPanel/OpenServerPanel/wiki).
 
 ## Довідники та додаткові матеріали
 1. [Офіційний сайт розробників PHP (англійська)](https://www.php.net/)

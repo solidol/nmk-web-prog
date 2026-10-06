@@ -1,4 +1,4 @@
-[Перелік усіх робіт](README.md)
+[Перелік усіх робіт](../README.md)
 
 # Лабораторна робота №4. Робота з операторами циклів та ассоціативними масивами
 
@@ -8,14 +8,16 @@
 
 ## Обладнання
 
-Персональний комп'ютер. Пакет програм XAMPP. Текстовий редактор Sublime Text 3 або IDE NetBeans. Web-браузер Chrome, Firefox, Opera
+Основне навчальне середовище — **OSPanel 6+ з PHP 8.1**. Альтернатива — **XAMPP із PHP 8.1**. Налаштування домену, каталогів і консолі наведено в [пам’ятці середовища](../../ENVIRONMENT.md).
+
+Персональний комп'ютер. OSPanel 6+ із PHP 8.1 (альтернатива — XAMPP із PHP 8.1). Текстовий редактор Sublime Text 3 або IDE NetBeans. Web-браузер Chrome, Firefox, Opera
 
 ## Хід роботи
 
-1.  Впевнитись, що пакет XAMPP встановлено та web-сервер Apache запущений
-2.  Перейти до каталогу `C:\xampp\htdocs\` та очистити його
+1. Запустіть OSPanel 6+ із PHP 8.1 та Apache для проєкту (альтернатива — XAMPP із PHP 8.1).
+2. Створіть окремий каталог `lab-04` у публічному каталозі проєкту OSPanel; для XAMPP — `C:\xampp\htdocs\lab-04`. Інші проєкти не видаляйте.
 3.  Впевнитись, що файл є валідним, використавши валідатор HTML-коду `https://validator.w3.org/`. За необхідності, виправити помилки та зауваження
-4.  В каталогу `C:\xampp\htdocs\` створити файли з іменем `index.php`
+4.  У каталозі цієї лабораторної створити файли з іменем `index.php`
 5.  Відкрити `index.php` та змінити його наступним чином:
 
 ```php 
@@ -52,7 +54,7 @@
 
 Зберегти файл
     
-6.  Перейти за адресою `http://127.0.0.1/index.php` або `http://localhost/index.php` та впевнитись, що завантажилася ваша HTML-сторінка
+6.  Перейти за адресою `http://web-prog.local/lab-04/index.php` та впевнитись, що завантажилася ваша HTML-сторінка
 7.  Проаналізувати код і змінити його таким чином, щоб були виведені непарні числа **В РЯДОК**
 8.  Відкрити `index.php` та змінити його наступним чином:
 
@@ -205,6 +207,14 @@
 1.  Які види циклів існують в PHP?
 2.  Які два варіанти використання foreach() ви знаєте?
 3.  Як додати в масив елемент з асоціативним ключем?
+
+## Джерела
+
+1. PHP Documentation Group. [for](https://www.php.net/manual/en/control-structures.for.php).
+2. PHP Documentation Group. [foreach](https://www.php.net/manual/en/control-structures.foreach.php).
+3. PHP Documentation Group. [Arrays](https://www.php.net/manual/en/language.types.array.php).
+4. PHP Documentation Group. [Escaping from HTML](https://www.php.net/manual/en/language.basic-syntax.phpmode.php).
+5. OSPanel. [Official documentation](https://github.com/OSPanel/OpenServerPanel/wiki).
 
 ## Довідники та додаткові матеріали
 
