@@ -1,4 +1,4 @@
-﻿[Перелік усіх робіт](README.md)
+[Перелік усіх робіт](README.md)
 
 # Лабораторна робота №2. Перевірка роботи CGI-застосувань
 
@@ -101,7 +101,7 @@ System.SysUtils;
 
 begin 
 try 
-    { TODO -oUser -cConsole Main : Insert code here } 
+    { Формуємо заголовок і тіло відповіді CGI. }
     Write('Content-Type: text/plain'); 
     Writeln(''); 
     Writeln(''); 
@@ -141,6 +141,14 @@ end.
 4. [Приклад CGI Freepascal](src/lab-02/datetime.pas)
 5. [Приклад CGI C++](src/lab-02/datetime.cpp)
 6. [Зкомпільований файл CGI Delphi](src/lab-02/cgi.exe)
+
+## Джерела
+
+1. D. Robinson, K. Coar. [RFC 3875: The Common Gateway Interface (CGI) Version 1.1](https://www.rfc-editor.org/rfc/rfc3875).
+2. Apache Software Foundation. [Dynamic Content with CGI](https://httpd.apache.org/docs/2.4/howto/cgi.html).
+3. Apache Software Foundation. [mod_cgi](https://httpd.apache.org/docs/2.4/mod/mod_cgi.html).
+4. Apache Software Foundation. [mod_mime: AddHandler](https://httpd.apache.org/docs/2.4/mod/mod_mime.html#addhandler).
+5. Apache Software Foundation. [Using Apache HTTP Server on Microsoft Windows](https://httpd.apache.org/docs/2.4/platform/windows.html).
 
 ## Довідники та додаткові матеріали
 

@@ -1,28 +1,13 @@
 <?php
-class Person {
-    public $name;
-    public $age;
-}
+declare(strict_types=1);
+require __DIR__ . '/common.php';
 
-$filename = 'persons.xml';
 $people = [];
-
-$dom = new DOMDocument();
-if ($dom->load($filename)) {
-    $persons = $dom->getElementsByTagName('person');
-    
-    foreach ($persons as $personNode) {
-        $person = new Person();
-        $person->name = $personNode->getElementsByTagName('name')->item(0)->nodeValue;
-        $person->age = $personNode->getElementsByTagName('age')->item(0)->nodeValue;
-        $people[] = $person;
-    }
-} else {
-    echo "Не вдалося прочитати XML файл.";
+$error = null;
+try {
+    $dom = parseXml(readText(__DIR__ . '/persons.xml'));
+    $people = peopleFromXml($dom);
+} catch (RuntimeException $exception) {
+    $error = $exception->getMessage();
 }
-
-// Виведення масиву об'єктів
-foreach ($people as $person) {
-    echo "Ім'я: {$person->name}, Вік: {$person->age}<br>";
-}
-?>
+renderPeople($people, 'XML', $error);
