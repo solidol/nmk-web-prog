@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="440" viewBox="0 0 1120 440" role="img" aria-labelledby="title desc">
+<title id="title">Два способи взаємодії з навчальною базою</title>
+<desc id="desc">Браузер звертається до PHP, який працює з MariaDB через MySQLi. phpMyAdmin підключається до тієї самої бази окремо для адміністрування.</desc>
+<defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#334155"/></marker></defs>
+<rect width="1120" height="440" rx="18" fill="#f1f5f9"/>
+<g font-family="Segoe UI, sans-serif" fill="#0f172a">
+<text x="35" y="45" font-size="26" font-weight="700">PHP-застосунок і phpMyAdmin — окремі клієнти бази</text>
+<rect x="40" y="160" width="230" height="125" rx="14" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+<text x="65" y="200" font-size="23" font-weight="700">Браузер</text><text x="65" y="231" font-size="18">Форма, таблиця</text><text x="65" y="258" font-size="18">HTTP-запит / відповідь</text>
+<rect x="395" y="160" width="295" height="125" rx="14" fill="#ccfbf1" stroke="#0f766e" stroke-width="2"/>
+<text x="420" y="200" font-size="23" font-weight="700">PHP 8.1 + MySQLi</text><text x="420" y="231" font-size="18">Валідація → SQL + параметри</text><text x="420" y="258" font-size="18">Екранування HTML-виведення</text>
+<rect x="840" y="160" width="235" height="125" rx="14" fill="#e0e7ff" stroke="#4f46e5" stroke-width="2"/>
+<text x="865" y="200" font-size="23" font-weight="700">MariaDB</text><text x="865" y="231" font-size="18">База lab11</text><text x="865" y="258" font-size="18">Таблиця products</text>
+<path d="M275 204H385" stroke="#334155" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="300" y="190" font-size="16">HTTP</text>
+<path d="M695 204H830" stroke="#334155" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="722" y="190" font-size="16">SQL</text>
+<path d="M830 257H700M385 257H280" stroke="#334155" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="715" y="284" font-size="15">результат</text><text x="305" y="284" font-size="15">HTML</text>
+<rect x="440" y="77" width="245" height="55" rx="10" fill="#fff7ed" stroke="#ea580c"/>
+<text x="465" y="101" font-size="20" font-weight="700">phpMyAdmin</text><text x="465" y="123" font-size="15">SQL та імпорт</text>
+<path d="M690 105H960V150" fill="none" stroke="#334155" stroke-width="2" stroke-dasharray="7 5" marker-end="url(#arrow)"/>
+<text x="728" y="95" font-size="15">окреме підключення</text>
+<text x="40" y="345" font-size="20" font-weight="600">Одна база — два інструменти для різних завдань</text>
+<text x="40" y="378" font-size="18">phpMyAdmin створює й перевіряє структуру; PHP виконує логіку вашого каталогу.</text>
+<text x="40" y="407" font-size="18">Пароль БД залишається на сервері. Браузеру повертаються лише потрібні дані.</text>
+</g></svg>

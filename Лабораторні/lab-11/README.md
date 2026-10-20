@@ -1,419 +1,344 @@
-[Перелік усіх робіт](README.md)
-
 # Лабораторна робота №11. Робота з СКБД MySQL та оболонкою phpMyAdmin
 
-## Мета роботи
+[Перелік усіх робіт](../README.md)
 
-Вивчити основи баз даних і навчитися їх створювати в СУБД MySQL
+## Тема та мета роботи
 
-## Обладнання
+**Тема:** класичні засоби роботи з MySQL: SQL, phpMyAdmin і процедурний інтерфейс MySQLi у PHP.
 
-Персональний комп'ютер. Пакет програм XAMPP. Текстовий редактор Sublime Text 3 або IDE NetBeans. Web-браузер Chrome, Firefox, Opera
+Навчитися створювати таблицю, виконувати SELECT, INSERT, UPDATE, DELETE, отримувати результати запитів і переносити каталог із XML/JSON до реляційної бази. Закріпити перевірку введення, параметризовані запити та безпечне відображення даних.
+
+## Обладнання та передумови
+
+Основне середовище — **OSPanel 6+ із PHP 8.1**, альтернатива — **XAMPP із PHP 8.1**. Потрібні запущена MariaDB, доступ до phpMyAdmin, розширення `mysqli` і `mbstring`, редактор коду та браузер. Налаштування каталогів і консолі — у [пам’ятці середовища](../../ENVIRONMENT.md).
+
+У курсі використовуємо MariaDB як сервер із сумісним протоколом MySQL. Назва MySQLi позначає розширення PHP для доступу до такого сервера. Усі серверні приклади цієї роботи — чистий PHP з функціями `mysqli_*`; класи власної моделі та фреймворки не потрібні. Старі функції `mysql_*` у PHP 8.1 не використовують.
+
+Повторіть [лекцію 8](../../Лекціі/lec-08/README.md), [форми з ЛР 5](../lab-05/README.md), [захист стану й форм із ЛР 7](../lab-07/README.md) та [каталог за варіантом із ЛР 8](../lab-08/README.md). Версію сервера, хост, порт та облікові дані визначте у власному середовищі; не припускайте автоматично порт 3306 або порожній пароль.
 
 ## Теоретичні відомості
 
-Бібліотека MySQLi (MySQL Improved Extension) є однією з розширень мови програмування PHP, яка призначена для взаємодії з системою керування базами даних MySQL. MySQLi є покращеною версією старішої бібліотеки MySQL, яка пропонує додаткові функції та забезпечує більше можливостей для роботи з MySQL-базами даних. Ось декілька ключових особливостей і функцій бібліотеки MySQLi:
+### Хто виконує запит
 
-- Підтримка підготовлених запитів: MySQLi дозволяє створювати та виконувати підготовлені запити, що дозволяє попередити SQL-ін'єкції та покращити безпеку додатків.
-- Підтримка транзакцій: Ви можете використовувати MySQLi для реалізації транзакцій, що дозволяє вам групувати кілька запитів разом і забезпечувати атомарність операцій.
-- Підтримка об'єктно-орієнтованого та процедурного стилю: MySQLi підтримує обидва стилі програмування, дозволяючи вибрати підхід, який вам більше подобається.
-- Підтримка з'єднань з сервером баз даних: MySQLi дозволяє вам керувати з'єднаннями з сервером баз даних, включаючи встановлення, закриття та поновлення з'єднань.
-- Обробка результатів запитів: Ви можете легко отримувати та обробляти результати запитів до бази даних, включаючи вибірку, вставку, оновлення та видалення даних.
-- Підтримка роботи з рядками з'єднань (connection pooling): MySQLi може оптимізувати роботу з з'єднаннями до бази даних, що зменшує витрати ресурсів сервера та підвищує продуктивність.
-- Підтримка багатофункціональних запитів (multi-query): MySQLi дозволяє виконувати кілька запитів у одному виклику, що дозволяє вам виконувати багато операцій разом.
+phpMyAdmin — вебінтерфейс адміністрування: створення структури, виконання SQL, імпорт та експорт. Він не зберігає дані замість MariaDB й не потрібен як посередник між вашим PHP-кодом і сервером БД.
 
-За допомогою бібліотеки MySQLi ви можете легко створювати потужні та безпечні додатки, які взаємодіють з базами даних MySQL. MySQLi є стандартним вибором для багатьох розробників PHP, які працюють з MySQL, і надає ряд зручних функцій для спрощення роботи з базами даних.
+![Браузер працює з PHP, PHP через MySQLi — з MariaDB; phpMyAdmin має окреме підключення](images/database-workflow.svg)
+
+Обидва інтерфейси MySQLi — процедурний та об’єктний — підтримуються. У цій роботі послідовно використовуємо процедурний: `mysqli_query($db, $sql)`, `mysqli_prepare($db, $sql)`, `mysqli_close($db)`. Процедурний стиль не є застарілим або небезпечним сам по собі; безпека залежить від організації роботи з даними.
+
+### Таблиця, ключі та ціна
+
+Навчальна таблиця `products` містить товар, його унікальний код, опис, ціну й час створення. `PRIMARY KEY` визначає рядок за id; `UNIQUE` не дозволяє двом товарам мати той самий код. Українські рядки зберігаємо в `utf8mb4`.
+
+![Початкові товари та пояснення первинного ключа, унікального коду й DECIMAL](images/products-structure.svg)
+
+Ціна має тип `DECIMAL(10,2)`: десять цифр загалом, дві після крапки. У PHP передаємо її як перевірений десятковий **рядок** через тип `s` у bind_param, щоб уникнути похибок float. Приклад приймає 0–99999999.99; вимога невід’ємності перевіряється застосунком. Час `created_at` встановлює сервер БД; часовий пояс сеансу БД слід враховувати окремо від налаштування часу PHP.
+
+### Види SQL та результати MySQLi
+
+| Операція | Призначення | Як перевірити результат |
+| --- | --- | --- |
+| CREATE TABLE | Визначити структуру | Structure у phpMyAdmin, SHOW CREATE TABLE |
+| SELECT | Прочитати рядки | Набір результатів, fetch-функції, порожній список |
+| INSERT | Додати запис | Успішне execute, insert_id, повторний SELECT |
+| UPDATE | Змінити запис | affected_rows і повторний SELECT |
+| DELETE | Видалити запис | affected_rows і відсутність рядка після SELECT |
+
+Підготовлений запит відокремлює SQL від значень. Маркер `?` задає значення, а не назву таблиці чи стовпця. Типи bind_param: `i` — ціле, `d` — число з рухомою крапкою, `s` — рядок, `b` — бінарні дані. Для назв полів сортування потрібен фіксований перелік у коді.
+
+```mermaid
+sequenceDiagram
+    participant P as PHP / MySQLi
+    participant D as MariaDB
+    P->>D: mysqli_prepare: SQL із ?
+    D-->>P: Підготовлений вираз
+    Note over P: mysqli_stmt_bind_param: змінні й типи
+    P->>D: mysqli_stmt_execute: значення
+    D-->>P: Результат або виняток
+    P->>P: fetch, перевірка, закриття виразу
+```
+
+Заміна введення на HTML-сутності не захищає SQL. Параметризація захищає структуру запиту; перевірка типів і меж забезпечує правильні дані; `htmlspecialchars()` захищає HTML-виведення. Ці дії не замінюють одна одну.
 
 ## Хід роботи
 
-1.  Запустіть web-сервер Apache та СУБД MySQL у вікні прикладки XAMPP Control Panel.
-2.  Відкрийте браузер і в адресному рядку введіть наступну адресу: `http://localhost/phpmyadmin/`
-3.  Створіть нову БД з ім'ям Products.
-4.  Зробити створену базу даних активною, вибравши її ім'я в списку баз даних.
-5.  Перейдіть на вкладку SQL та виконайте наступний скрипт.
+### 1. Підготуйте середовище й базу
 
-```SQL
-    CREATE TABLE IF NOT EXISTS `products` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `product_code` varchar(60) NOT NULL,
-  `product_name` varchar(60) NOT NULL,
-  `product_desc` tinytext NOT NULL,
-  `price` decimal(10,2) NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `product_code` (`product_code`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=33;
+1. Запустіть вебсервер проєкту та модуль MariaDB в OSPanel. Для альтернативного XAMPP запустіть Apache й сервер БД.
+2. Відкрийте phpMyAdmin через меню середовища. Адреса залежить від інсталяції; `http://localhost/phpmyadmin/` — лише типовий варіант XAMPP.
+3. Створіть **власну навчальну базу** `lab11` із кодуванням utf8mb4. Не видаляйте існуючі бази або таблиці інших проєктів. Якщо ім’я зайняте, оберіть інше й узгодьте DB_NAME.
+4. Підготуйте користувача застосунку з правами SELECT, INSERT, UPDATE, DELETE на цю базу. Створення структури виконуйте обліковим записом із відповідними правами адміністратора. Не записуйте його пароль у PHP-файли чи звіт.
+5. У публічному каталозі проєкту створіть `lab-11` та скопіюйте туди [src](src). Для XAMPP типовий шлях — `C:\xampp\htdocs\lab-11`. Інші проєкти не видаляйте.
 
-INSERT INTO `products` (`id`, `product_code`, `product_name`, `product_desc`, `price`)
-VALUES
-  (1, 'PD1001', 'Android Phone FX1', 'Di sertakan secara rambang yang lansung tidak munasabah. Jika anda ingin menggunakan Lorem Ipsum, anda perlu memastikan bahwa tiada apa yang', 200.50),
-  (2, 'PD1002', 'Television DXT', 'Ia menggunakan kamus yang mengandungi lebih 200 ayat Latin, bersama model dan struktur ayat Latin, untuk menghasilkan Lorem Ipsum yang munasabah.', 500.85),
-  (3, 'PD1003', 'External Hard Disk', 'Ada banyak versi dari mukasurat-mukasurat Lorem Ipsum yang sedia ada, tetapi kebanyakkannya telah diubahsuai, lawak jenaka diselitkan, atau ayat ayat yang', 100.00);
+У phpMyAdmin виберіть базу **перед** виконанням SQL. Усі подальші операції стосуються саме її.
+
+### 2. Створіть таблицю та перевірте початкові дані
+
+Перейдіть на вкладку **SQL**, вставте [schema.sql](src/schema.sql) та виконайте його. Альтернатива — вкладка **Import / Імпорт**, вибір цього файла та виконання імпорту. Скрипт призначений для одного запуску в порожній навчальній базі; він не очищує наявну таблицю.
+
+```sql
+CREATE TABLE products (
+    id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    product_code VARCHAR(20) NOT NULL,
+    product_name VARCHAR(80) NOT NULL,
+    product_desc VARCHAR(500) NOT NULL,
+    price DECIMAL(10,2) NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (id),
+    UNIQUE KEY uq_products_code (product_code)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
-6.  Перейти до каталогу `C:\xampp\htdocs\` та очистити його
-7.  У зв'язку з припиненням підтримки PHP MySQL в 2011 році для роботи з базами даних все більш широке застосування знаходять PDO (PHP Data Objects) або MySqli.
-8.  MySqli пропонує два способи з'єднання з базою даних: процедурний і об'єктно-орієнтований. Рекомендовано використовувати об'єктно-орієнтований. Процедурний схожий на (старий) MySql, тому для новачків його використання, можливо, буде краще, але варто пам'ятати, що їм користуватися не рекомендується.
+
+Після імпорту відкрийте **Structure / Структура**: перевірте типи й ключі. У **Browse / Огляд** мають бути три товари: Зошит — 25.50, Папка — 40.00, Набір ручок — 60.25. Вкладки можуть мати локалізовані назви.
+
+У SQL виконайте:
+
+```sql
+SELECT id, product_code, product_name, price
+FROM products
+ORDER BY id;
+
+SELECT COUNT(*) AS total FROM products;
+
+SELECT product_name, price
+FROM products
+WHERE price >= 40.00
+ORDER BY price, id;
+```
+
+Очікується три записи загалом і два з ціною від 40.00. Зробіть висновок про WHERE, ORDER BY і COUNT(*). Не встановлюйте AUTO_INCREMENT вручну та не вважайте відсутність пропусків id ознакою правильності бази.
+
+### 3. Налаштуйте підключення PHP
+
+[common.php](src/common.php) читає реквізити зі змінних середовища процесу PHP:
+
+| Змінна | Що вказати |
+| --- | --- |
+| DB_HOST | Хост активного модуля MariaDB |
+| DB_PORT | Порт цього модуля |
+| DB_NAME | Власна навчальна база, наприклад lab11 |
+| DB_USER | Користувач застосунку |
+| DB_PASSWORD | Його пароль, заданий локально поза репозиторієм |
+
+Налаштуйте їх для проєкту OSPanel. Для запуску `php` з термінала використовуйте активоване середовище того самого проєкту; налаштування консолі та вебпроцесу перевіряйте окремо. У XAMPP змінні мають бути доступні процесу Apache та окремо CLI, якщо запускаєте демонстрацію з термінала. Не покладайтеся на довільний `.env`-файл: PHP сам його не читає.
+
+Головна послідовність усередині `connectDatabase()`:
 
 ```php
-//процедурний стиль 
-$mysqli = mysqli_connect('host','username','password','database_name'); 
-//об'єктно-орієнтований стиль (рекомендується) 
-$mysqli = new mysqli('host','username','password','database_name');
+mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
+$db = mysqli_init();
+mysqli_options($db, MYSQLI_OPT_CONNECT_TIMEOUT, 5);
+mysqli_real_connect($db, $host, $user, $password, $database, $port);
+mysqli_set_charset($db, 'utf8mb4');
 ```
 
-9.  Нижче показано відкриття з'єднання з базою даних об'єктно-орієнтованим способом. Цей спосіб буде використовуватися і в усіх наведених нижче прикладах.
+Це фрагмент із уже перевіреними налаштуваннями. У готовому файлі є перевірка їх наявності, порту й результату ініціалізації. STRICT перетворює помилки БД на винятки; їх потрібно обробляти, а не виводити реквізити або SQL у браузер. Журналюйте код і контекст помилки без паролів і введених даних.
 
-    Отже, створіть файл config.php у який помістіть настпуний код:
+### 4. Прочитайте каталог і порівняйте fetch-функції
+
+Відкрийте `http://web-prog.local/lab-11/src/index.php`, замінивши домен власним; для XAMPP — `http://localhost/lab-11/src/index.php`. Готова сторінка показує максимум 100 записів і форму пошуку за кодом. Вона лише читає дані; форми зміни каталогу створює студент.
+
+У `findProducts()` простий запит без зовнішніх параметрів виконується через mysqli_query. Відокремлена частина читання:
 
 ```php
-<?php
-// Налаштування БД
-$database_host = 'localhost';
-$database_username = 'root';
-$database_password = '';
-$database_name = 'Products';
-
-// Відкриваємо нове з'єднання з MySQL сервером
-$mysqli = new mysqli($database_host, $database_username, $database_password, $database_name);
-
-// Виводимо помилку з'єднання
-if ($mysqli->connect_error) {
-    die('Error : (' . $mysqli->connect_errno . ') ' . $mysqli->connect_error);
+$result = mysqli_query($db,
+    'SELECT id, product_code, product_name, price FROM products ORDER BY id');
+while ($row = mysqli_fetch_assoc($result)) {
+    echo '<p>' . e($row['product_name']) . ' — ' . e($row['price']) . '</p>';
 }
-?>
+mysqli_free_result($result);
 ```
-10. Створіть файл index.php у якому підключіть файл з настройками БД та виконуте представлені приклади.
-11. Вибір (SELECT) результуючого ряду у вигляді асоціативного масиву. `mysqli_fetch_assoc()`: в наведеному нижче коді відбувається вилучення результуючого ряду у вигляді асоціативного масиву. Масив, що повертається містить рядки, отримані з бази даних, де імена стовпців будуть ключем, що використовується для доступу до внутрішніх даних. Як показано нижче, дані відображаються у вигляді HTML таблиці.
 
-```PHP
-<?php
-$mysqli = new mysqli('host', 'username', 'password', 'database_name');
+Тут `$db` — відкрите підключення, `e()` — функція екранування з common.php. У готовому index.php читання завершується до HTML, щоб можна було встановити коректний статус у разі помилки.
 
-if ($mysqli->connect_error) {
-    die('Error: (' . $mysqli->connect_errno . ') ' . $mysqli->connect_error);
-}
+В окремому навчальному фрагменті порівняйте три способи отримання **тих самих вибраних стовпців**:
 
-$results = $mysqli->query("SELECT id, product_code, product_desc, price FROM products");
+| Функція | Приклад доступу |
+| --- | --- |
+| mysqli_fetch_assoc | `$row['product_name']` |
+| mysqli_fetch_row | `$row[2]`, якщо назва — третій стовпець SELECT |
+| mysqli_fetch_object | `$row->product_name` |
+| mysqli_fetch_array з MYSQLI_BOTH | Доступ і за назвою, і за індексом; два ключі представляють те саме значення |
 
-print '<table border="1">';
-while ($row = $results->fetch_assoc()) {
-    print '<tr>';
-    print '<td>' . $row["id"] . '</td>';
-    print '<td>' . $row["product_code"] . '</td>';
-    print '<td>' . $row["product_name"] . '</td>';
-    print '<td>' . $row["product_desc"] . '</td>';
-    print '<td>' . $row["price"] . '</td>';
-    print '</tr>';
-}
-print '</table';
+Fetch пересуває курсор. Для кожного порівняння виконайте SELECT повторно або поверніть курсор на початок непорожнього буферизованого результату; не очікуйте, що після прочитаного циклу наступний fetch почне все спочатку. Порожній результат не є помилкою SQL.
 
-$results->free();
-$mysqli->close();
-?>
-```
-12. Вибір (SELECT) результуючого ряду у вигляді масиву (асоціативний, звичайний, або в обидва). Фукнція `fetch_array()`: повертає масив з об'єднаним функціоналом `mysqli_fetch_row` і `mysqli_fetch assoc`. Ця функція є розширеною версією функції `mysqli_fetch_row()`; для доступу до даних можна використовувати як рядок, так і числа.
+### 5. Виконайте параметризований пошук
 
-```PHP
-<?php
-$mysqli = new mysqli('host', 'username', 'password', 'database_name');
+У формі введіть `PD1002`: має залишитися Папка з ціною 40.00. Порожнє поле показує список; код `NO-SUCH-CODE` — повідомлення про відсутність товарів. Перевіряються рядковий тип і формат коду: 3–20 великих латинських літер, цифр або дефісів.
 
-if ($mysqli->connect_error) {
-    die('Error: (' . $mysqli->connect_errno . ') ' . $mysqli->connect_error);
-}
-
-$results = $mysqli->query("SELECT id, product_code, product_desc, price FROM products");
-
-print '<table border="1">';
-
-while ($row = $results->fetch_array()) {
-    print '<tr>';
-    print '<td>' . $row["id"] . '</td>';
-    print '<td>' . $row["product_code"] . '</td>';
-    print '<td>' . $row["product_name"] . '</td>';
-    print '<td>' . $row["product_desc"] . '</td>';
-    print '<td>' . $row["price"] . '</td>';
-    print '</tr>';
-}
-
-print '</table>';
-
-$results->free();
-$mysqli->close();
-?>
-```
-13. Вибір (SELECT) результуючого ряду у вигляді об'єкта. `fetch_object()`: щоб отримати результуючий набір у вигляді об'єкта, потрібно скористатися MySqli `fetch_object()`. Атрибути об'єкта будуть відображати імена полів, знайдених всередині результуючого набору.
-
-```PHP
-<?php
-$mysqli = new mysqli('host', 'username', 'password', 'database_name');
-
-if ($mysqli->connect_error) {
-    die('Error: (' . $mysqli->connect_errno . ') ' . $mysqli->connect_error);
-}
-
-$results = $mysqli->query("SELECT id, product_code, product_desc, price FROM products");
-
-print '<table border="1">';
-
-while ($row = $results->fetch_object()) {
-    print '<tr>';
-    print '<td>' . $row->id . '</td>';
-    print '<td>' . $row->product_code . '</td>';
-    print '<td>' . $row->product_name . '</td>';
-    print '<td>' . $row->product_desc . '</td>';
-    print '<td>' . $row->price . '</td>';
-    print '</tr>';
-}
-
-print '</table>';
-
-$mysqli->close();
-?>
-```
-14. Вибір (SELECT) одиночного значення. Одиночне значення отримати з бази даних можна за допомогою `fetch_object()`
-
-```PHP
-<?php
-$mysqli = new mysqli('host', 'username', 'password', 'database_name');
-
-if ($mysqli->connect_error) {
-    die('Error: (' . $mysqli->connect_errno . ') ' . $mysqli->connect_error);
-}
-
-$product_name = $mysqli->query("SELECT product_name FROM products WHERE id = 1")->fetch_object()->product_name;
-
-print $product_name;
-
-$mysqli->close();
-?>
-```
-15. Витягуємо (SELECT COUNT) кількість рядків в таблиці. Іноді потрібно дізнатися кількість рядків у таблиці, особливо при нумерації сторінок.
-
-```PHP
-<?php
-$mysqli = new mysqli('host', 'username', 'password', 'database_name');
-
-if ($mysqli->connect_error) {
-    die('Error: (' . $mysqli->connect_errno . ') ' . $mysqli->connect_error);
-}
-
-$results = $mysqli->query("SELECT COUNT(*) FROM users");
-$get_total_rows = $results->fetch_row();
-
-$mysqli->close();
-?>
-```
-16. Вибір (SELECT) за допомогою шаблонів (prepared statements).
-
-prepared statements \- спеціальний інструмент СУБД, що дозволяє прискорити послідовне виконання повторюваних запитів, побудованих за одним і тим же шаблоном.
-
-Однією з особливостей MySqli є можливість використання вже написаних шаблонів: тобто запит досить написати один раз, після чого його можна багаторазово виконувати з різними параметрами. Використання вже написаних шаблонів покращує продуктивність для великих таблиць і складних запитів. Для запобігання попаданню шкідливого коду аналіз кожного запиту здійснюється сервером окремо.
-
-Код нижче використовує шаблон (Prepared statement), щоб отримувати дані з бази даних. Заповнювач `?` в запиті SQL грає роль маркера і буде заміщений параметром, який, в свою чергу, може бути рядком, цілим числом, double або blob. У нашому випадку це рядок `$search_product`.
-
-```PHP
-<?php
-$search_product = "PD1001"; // product id
-
-// Створення prepared statement
-$query = "SELECT id, product_code, product_desc, price FROM products WHERE product_code=?";
-$statement = $mysqli->prepare($query);
-
-// Параметри прив’язки для маркерів, де (s = string, i = integer, d = double, b = blob)
-$statement->bind_param('s', $search_product);
-
-// Виконання запиту
-$statement->execute();
-
-// Зв'язування результуючих змінних
-$statement->bind_result($id, $product_code, $product_desc, $price);
-
-print '<table border="1">';
-// Вивід записів
-while ($statement->fetch()) {
-    print '<tr>';
-    print '<td>' . $id . '</td>';
-    print '<td>' . $product_code . '</td>';
-    print '<td>' . $product_desc . '</td>';
-    print '<td>' . $price . '</td>';
-    print '</tr>';
-}
-print '</table>';
-
-// Закриття з'єднання
-$statement->close();
-?>
-```
-17. Той самий запит із декількома параметрами:
-
-```PHP
-<?php
-$search_ID = 1;
-$search_product = "PD1001";
-
-$query = "SELECT id, product_code, product_desc, price FROM products WHERE ID=? AND product_code=?";
-$statement = $mysqli->prepare($query);
-$statement->bind_param('is', $search_ID, $search_product);
-$statement->execute();
-$statement->bind_result($id, $product_code, $product_desc, $price);
-
-print '<table border="1">';
-while ($statement->fetch()) {
-    print '<tr>';
-    print '<td>' . $id . '</td>';
-    print '<td>' . $product_code . '</td>';
-    print '<td>' . $product_desc . '</td>';
-    print '<td>' . $price . '</td>';
-    print '</tr>';
-}
-print '</table';
-
-$statement->close();
-?>
-```
-18. Вставка (INSERT) запису. Код нижче вставляє в таблицю новий запис.
+Механізм пошуку в процедурному стилі:
 
 ```php
-<?php
-// Значення, які потрібно вставити в таблицю бази даних
-$product_code = '"' . $mysqli->real_escape_string('P1234') . '"';
-$product_name = '"' . $mysqli->real_escape_string('42 inch TV') . '"';
-$product_price = '"' . $mysqli->real_escape_string('600') . '"';
-
-$insert_row = $mysqli->query("INSERT INTO products (product_code, product_name, price) VALUES ($product_code, $product_name, $product_price)");
-
-if ($insert_row) {
-    print 'Запит успішно виконаний! ID останнього вставленого запису: ' . $mysqli->insert_id . '<br />';
-} else {
-    die('Помилка: (' . $mysqli->errno . ') ' . $mysqli->error);
+$code = 'PD1002'; // У формі значення спочатку проходить валідацію.
+$stmt = mysqli_prepare($db,
+    'SELECT id, product_name, price FROM products WHERE product_code = ?');
+mysqli_stmt_bind_param($stmt, 's', $code);
+mysqli_stmt_execute($stmt);
+mysqli_stmt_bind_result($stmt, $id, $name, $price);
+while (mysqli_stmt_fetch($stmt) === true) {
+    echo '<p>' . (int) $id . ': ' . e($name) . ' — ' . e($price) . '</p>';
 }
-?>
+mysqli_stmt_close($stmt);
 ```
-19. Фрагмент коду нижче вставляє ті ж значення за допомогою шаблонів (prepared statement). Як ми вже говорили, шаблони надзвичайно ефективні проти SQL ін'єкцій. Для наведеного прикладу їх використання є оптимальним варіантом.
 
-```PHP
-<?php
-$product_code = 'P1234';
-$product_name = '42 inch TV';
-$product_price = '600';
+Кількість і порядок змінних у bind_result мають відповідати стовпцям SELECT. До нового запиту на тому самому з’єднанні прочитайте або закрийте попередній результат. Не використовуйте конкатенацію введення із SQL навіть після trim().
 
-$query = "INSERT INTO products (product_code, product_name, price) VALUES (?, ?, ?)";
-$statement = $mysqli->prepare($query);
-$statement->bind_param('sss', $product_code, $product_name, $product_price);
+### 6. Дослідіть повний цикл CRUD
 
-if ($statement->execute()) {
-    print 'Запит успішно виконаний! ID останнього вставленого запису: ' . $statement->insert_id . '<br />';
-} else {
-    die('Помилка: (' . $mysqli->errno . ') ' . $mysqli->error);
-}
+Запустіть у консолі проєкту з каталогу `src`:
 
-$statement->close();
-?>
+```bash
+php crud-demo.php
 ```
-20. Вставка (INSERT) декількох записів. Вставка декількох рядків одночасно здійснюється шляхом включення ряду значень стовпців, де кожен ряд значень повинен бути у дужках і відділений від інших комою. Іноді потрібно дізнатися, скільки записів було вставлено, оновлено або видалено, для цього можна скористатися `$mysqli->affected_rows`.
+
+[crud-demo.php](src/crud-demo.php) створює один навчальний товар із випадковим кодом, перевіряє читання, змінює ціну, повторно читає її, видаляє цей товар і відкочує транзакцію. Початкові три записи залишаються. Пропуск у наступному AUTO_INCREMENT після rollback є допустимим. Через браузер цей демонстраційний запис заборонено.
+
+```mermaid
+flowchart LR
+    A[INSERT: новий id] --> B[SELECT: перевірити дані]
+    B --> C[UPDATE: змінити ціну]
+    C --> D[SELECT: підтвердити зміну]
+    D --> E[DELETE за тим самим id]
+    E --> F[SELECT: запис відсутній]
+    F --> G[ROLLBACK демонстрації]
+```
+
+Дослідіть ключові фрагменти. Після перевірки введення `validateProduct()` повертає масив із нормалізованими значеннями; ця функція не виконує SQL.
 
 ```php
-<?php
-// product 1
-$product_code1 = '"' . $mysqli->real_escape_string('P1') . '"';
-$product_name1 = '"' . $mysqli->real_escape_string('Google Nexus') . '"';
-$product_price1 = '"' . $mysqli->real_escape_string('149') . '"';
-
-// product 2
-$product_code2 = '"' . $mysqli->real_escape_string('P2') . '"';
-$product_name2 = '"' . $mysqli->real_escape_string('Apple iPad 2') . '"';
-$product_price2 = '"' . $mysqli->real_escape_string('217') . '"';
-
-// product 3
-$product_code3 = '"' . $mysqli->real_escape_string('P3') . '"';
-$product_name3 = '"' . $mysqli->real_escape_string('Samsung Galaxy Note') . '"';
-$product_price3 = '"' . $mysqli->real_escape_string('259') . '"';
-
-// Insert multiple rows
-$insert = $mysqli->query("INSERT INTO products(product_code, product_name, price) VALUES ($product_code1, $product_name1, $product_price1), ($product_code2, $product_name2, $product_price2), ($product_code3, $product_name3, $product_price3)");
-
-if ($insert) {
-    print 'Запит успішно виконаний! Всього ' . $mysqli->affected_rows . ' рядків додано.';
-} else {
-    die('Помилка: (' . $mysqli->errno . ') ' . $mysqli->error);
-}
-?>
+$product = validateProduct($_POST); // Викликати після перевірки POST і CSRF.
+$stmt = mysqli_prepare($db,
+    'INSERT INTO products (product_code, product_name, product_desc, price) VALUES (?, ?, ?, ?)');
+mysqli_stmt_bind_param($stmt, 'ssss', $product['product_code'],
+    $product['product_name'], $product['product_desc'], $product['price']);
+mysqli_stmt_execute($stmt);
+$newId = mysqli_insert_id($db);
+mysqli_stmt_close($stmt);
 ```
-21. Оновлення (Update)/видалення (Delete) записів. Принцип оновлення і видалення записів такий самий. Достатньо замінити рядок запиту на UPDATE або DELETE
 
-```PHP
-<?php
-// Запит на оновлення
-$results = $mysqli->query("UPDATE products SET product_name='52 inch TV', product_code='323343' WHERE ID=24");
-
-// Запит на видалення
-$results = $mysqli->query("DELETE FROM products WHERE ID=24");
-
-if ($results) {
-    print 'Запит успішно виконаний! Запис оновлено/видалено';
-} else {
-    print 'Помилка: (' . $mysqli->errno . ') ' . $mysqli->error;
-}
-?>
-
-```
-22. Оновлення за допомогою шаблонів (prepared statements). Приклад поновлення запису за допомогою шаблонів (prepared statements) наведено нижче.
+Ціну передаємо як `s`, id — як `i`. Додаючи кілька записів програмно, можна підготувати INSERT один раз, прив’язати змінні й виконувати його для нових значень; пов’язану групу змін об’єднуйте транзакцією, а не склеюйте введення в один SQL-рядок.
 
 ```php
-<?php
-$product_name = '52 inch TV';
-$product_code = '9879798';
-$find_id = 24;
+$newPrice = '45.00';
+$stmt = mysqli_prepare($db, 'UPDATE products SET price = ? WHERE id = ?');
+mysqli_stmt_bind_param($stmt, 'si', $newPrice, $newId);
+mysqli_stmt_execute($stmt);
+$changed = mysqli_stmt_affected_rows($stmt);
+mysqli_stmt_close($stmt);
 
-$query = "UPDATE products SET product_name=?, product_code=? WHERE ID=?";
-$statement = $mysqli->prepare($query);
-$results = $statement->bind_param('ssi', $product_name, $product_code, $find_id);
-
-if ($results) {
-    print 'Запит успішно виконаний! Запис оновлено';
-} else {
-    print 'Помилка: (' . $mysqli->errno . ') ' . $mysqli->error;
-}
-?>
-```
-23. Видалення старих записів. Видаленню піддаються всі записи, що знаходяться на сервері більше 1 дня; кількість днів можна задати самому.
-```php
-<?php
-// Запит на видалення
-$results = $mysqli->query("DELETE FROM products WHERE added_timestamp > (NOW() - INTERVAL 1 DAY)");
-
-if ($results) {
-    print 'Запит успішно виконаний! Видалено одноденні записи';
-} else {
-    print 'Помилка: (' . $mysqli->errno . ') ' . $mysqli->error;
-}
-?>
+$stmt = mysqli_prepare($db, 'DELETE FROM products WHERE id = ?');
+mysqli_stmt_bind_param($stmt, 'i', $newId);
+mysqli_stmt_execute($stmt);
+$deleted = mysqli_stmt_affected_rows($stmt);
+mysqli_stmt_close($stmt);
 ```
 
-24. З частин коду зберіть повний сценарій
-25. На основі лабораторної роботи №8 зробіть програму, яка зберігає дані про сутності, що відповідають вашому варіанту, в таблицю MySQL та виводить їх у табличному вигляді
-26. Впевніться, що всі вихідні HTML-сторінки є валідними, використавши валідатор HTML-коду `https://validator.w3.org/`. За необхідності, виправити помилки та зауваження
-27. Для проекту створіть папку "lab 11" в своєму репозиторії "web-progr" на Github. Завантажте кінцеві файли лабораторної роботи. 
-28. Для кожного етапу роботи зробіть знімки екрану та додайте їх у звіт з описом кожного скіншота
-29. Додайте програмний код завдання для самомтійного виконання
-30. Дайте відповіді на контрольні запитання
-31. Додайте в кінці звіту посилання на репозиторій та папку з лабораторною роботою
-32. Збережіть звіт у форматі PDF
-33. Додайте звіт до репозиторія
+Перед видаленням переконайтеся, що `$newId` належить саме щойно доданому тестовому товару. Значення `changed = 0` для UPDATE за стандартних налаштувань може означати як відсутній рядок, так і незмінну ціну. Повторний SELECT уточнює результат. Успішний bind_param ще не означає виконання UPDATE: обов’язковий execute.
+
+Не використовуйте UPDATE/DELETE без WHERE та масове очищення каталогу для перевірки роботи. Якщо надалі потрібне видалення записів за віком, спочатку перевірте вибірку SELECT з тим самим WHERE; ця робота не вимагає автоматичного очищення історії.
+
+### 7. Створіть власні форми та опрацюйте помилки
+
+Для навчального каталогу реалізуйте додавання, редагування за id й видалення з явним підтвердженням. GET відкриває список або форму; **POST змінює дані**. В усі POST-форми додайте сесійний CSRF-токен і перевірте його до запиту зміни за підходом ЛР 7. Налаштуйте шлях cookie для цього проєкту, не копіюйте `/lab-07/` без зміни.
+
+| Поле | Правила готового validateProduct |
+| --- | --- |
+| product_code | Рядок, після trim: 3–20 символів A–Z, 0–9, дефіс; унікальний |
+| product_name | Рядок UTF-8, після trim: 1–80 символів |
+| product_desc | Рядок UTF-8, після trim: 1–500 символів |
+| price | Рядок 0–99999999.99; крапка, до двох дробових цифр, без знака й початкових зайвих нулів |
+| id для зміни/видалення | Рядок із додатним цілим числом, перевірений на сервері; існування запису перевіряється окремо |
+
+Нульова ціна допустима; `25`, `25.5`, `25.50` нормалізуються до двох дробових цифр. Кома, експоненційний запис і від’ємні числа відхиляються. Правила та межі цієї таблиці — вимоги навчального прикладу, а не універсальна модель усіх товарів.
+
+Унікальність захищає індекс БД. Обробіть конфлікт дубліката коду (код помилки 1062) як помилку форми; збережіть введені значення. Інші збої БД не оголошуйте дублікатами. Не показуйте SQL, пароль або технічний текст винятку користувачу.
+
+Після успішного запису виконайте перенаправлення 303 на GET і `exit`, щоб оновлення сторінки не повторювало INSERT. У разі помилки не показуйте повідомлення про успіх. Перед HTML-виведенням застосовуйте `e()`, з’єднання закривайте в finally. Локальна вправа не реалізує багатокористувацьких прав; для справжнього сервісу потрібна також перевірка доступу до конкретного запису.
+
+### 8. Індивідуальне завдання за темою ЛР 8
+
+Перенесіть свій XML/JSON-каталог із ЛР 8 до **окремої таблиці** відповідної предметної області. Теми наведено наприкінці цієї роботи.
+
+1. Визначте щонайменше три змістові поля та первинний ключ. Оберіть типи, NOT NULL, допустимі межі; додайте унікальний індекс лише за наявності змістовної підстави. Не копіюйте назви товарних полів у таблицю розкладу чи блогу без адаптації.
+2. Створіть SQL-файл структури та щонайменше п’ять вигаданих записів. Для фотогалереї зберігайте метадані й відносні шляхи зображень, а не двійковий вміст у цьому завданні.
+3. Якщо імпортуєте свої XML/JSON-файли програмно, спочатку перевірте їх за правилами ЛР 8. Використовуйте підготовлений INSERT у транзакції; за помилки відкочуйте всю групу. Не імпортуйте той самий файл повторно без визначеної політики дублікатів.
+4. Реалізуйте список, точний пошук за обраним полем, додавання, редагування й підтверджене видалення. Доступ до БД — процедурний MySQLi. Повторіть захист форм, валідацію й екранування відповідно до власних полів.
+5. Перевірте роботу після перезапуску PHP та сервера БД. Результат має читатися з таблиці, а не залишатися лише в масиві поточного запиту.
+
+### 9. Експорт і відновлення
+
+У phpMyAdmin виберіть свою базу або таблицю → **Export / Експорт**, формат SQL. Переконайтеся, що експортовано структуру та дані. Відновіть файл через **Import / Імпорт** в **іншу порожню навчальну базу**, перемкніть DB_NAME й порівняйте кількість, ключі, український текст і ціни. Не перевіряйте відновлення поверх єдиної копії результату.
+
+Назви вкладок можуть відрізнятися за локалізацією. Ілюстрації цієї роботи пояснюють структуру, а не імітують конкретну версію інтерфейсу phpMyAdmin.
+
+## Перевірка та очікуваний результат
+
+| Перевірка | Очікувана поведінка |
+| --- | --- |
+| Початковий імпорт у порожню базу | Три товари, українські назви, правильні ціни |
+| COUNT(*) і відбір price >= 40.00 | 3 загалом, 2 у відборі |
+| Пошук PD1002; порожнє поле; NO-SUCH-CODE | Один товар; початковий список; повідомлення про відсутність |
+| code[]=PD1002 у GET | HTTP 400 без warning або TypeError |
+| POST до готової сторінки читання | HTTP 405; дані не змінено |
+| CLI crud-demo.php | Цикл підтверджено, початкові три товари залишилися |
+| Назва з апострофом, `&` і `<b>` | Точне збереження; HTML-теги показано як текст |
+| Нульова ціна; 25; 25.5; 25.50 | Прийнято, нормалізовано до двох дробових цифр |
+| -1, 25,50, 1e3, 25.555, 100000000 | Відмова до зміни БД |
+| Відсутнє поле, пробіли, масив замість рядка | Помилка валідації без запису |
+| Повторний product_code | Зрозумілий конфлікт, другий товар не створено |
+| UPDATE із незмінними даними | Коректна поведінка за affected_rows = 0 |
+| Невідомий id | Не створюється новий товар, інші записи не змінюються |
+| Відсутній або неправильний CSRF-токен | Відмова до INSERT, UPDATE, DELETE |
+| Оновлення сторінки після збереження | INSERT не повторюється |
+| Зупинений сервер або неправильні реквізити | Нейтральна помилка, технічні реквізити не показано |
+| Відновлення SQL в іншій базі | Структура, ключі та записи відповідають експорту |
+
+Для кожної перевірки запишіть фактичний результат; невиконані позначте з причиною. Для власних полів перевірте також крайні допустимі значення й перевищення межі. Перевірте сформований HTML через [W3C Markup Validation Service](https://validator.w3.org/), вставляючи HTML-відповідь, а не PHP-код.
+
+Результат — каталог своєї предметної області в MariaDB з відтворюваною SQL-структурою й PHP-інтерфейсом CRUD на MySQLi. Код не містить SQL із конкатенацією введення, відкритих реквізитів та змін даних через GET. Оцінювання здійснюється за критеріями [робочої програми](../../+РПНД%20WП%202023+.docx); окремої бальної шкали тут не запроваджено.
+
+## Вимоги до подання
+
+Розмістіть у своєму навчальному репозиторії `web-progr` папку `lab 11` або узгоджену викладачем назву. Подайте PHP-файли, SQL структури та тестових даних, експорт і PDF-звіт. Справжні реквізити підключення не публікуйте; додайте перелік потрібних змінних без секретних значень.
+
+Звіт має містити тему, мету, версії PHP і MariaDB, номер варіанта, схему власної таблиці, опис запуску, власні зміни та відповіді на контрольні питання. Додайте таблицю «сценарій — дані — очікування — фактичний результат — висновок», підписані знімки структури, каталогу, зміни запису, помилок і відновлення експорту, посилання на папку репозиторію. Відокремте готовий код від власного.
 
 ## Контрольні питання
 
-1. Що таке бібліотека MySQLi і для чого вона використовується в PHP?
-2. Які переваги використання MySQLi порівняно з застарілою бібліотекою MySQL в PHP?
-3. Як встановити підключення до бази даних MySQL за допомогою MySQLi?
-4. Як виконати запит SQL до бази даних з використанням MySQLi?
-5. Як виконати операції вставки, оновлення та видалення даних в базі даних з MySQLi?
-6. Як отримати результати запиту SELECT і обробити їх з використанням MySQLi?
-7. Як здійснюється закриття підключення до бази даних і чому воно важливе при роботі з MySQLi?
+1. Чим відрізняються MariaDB, phpMyAdmin і MySQLi?
+2. Чи є процедурний інтерфейс MySQLi застарілим і що визначає безпечність запиту?
+3. Для чого потрібні PRIMARY KEY, UNIQUE, NOT NULL та AUTO_INCREMENT?
+4. Чому для ціни використано DECIMAL, а в PHP — десятковий рядок?
+5. Як відрізняються fetch_assoc, fetch_row, fetch_object і fetch_array?
+6. Чому fetch пересуває курсор і як повторно прочитати результат?
+7. Як працює послідовність prepare → bind_param → execute → bind_result → fetch?
+8. Чому перевірки bind_param недостатньо, щоб повідомити про успішний UPDATE?
+9. Що означають insert_id та affected_rows? Чому UPDATE може змінити нуль рядків?
+10. Для чого потрібні транзакції й чому rollback не гарантує повернення AUTO_INCREMENT?
+11. Чому параметризація SQL, валідація, екранування та CSRF-захист є окремими діями?
+12. Як довести, що SQL-експорт справді придатний до відновлення?
 
+## Приклади
 
-## Альтернатвні теми за варіантами
+- [schema.sql](src/schema.sql) — структура products і три початкові товари.
+- [common.php](src/common.php) — процедурне підключення, валідація й читання.
+- [index.php](src/index.php) — готовий список і точний пошук; вебформи CRUD реалізує студент.
+- [crud-demo.php](src/crud-demo.php) — повний CLI-цикл із відкочуванням транзакції.
 
-Варіяант для виконання самостійних завдань
+## Джерела
+
+1. PHP Documentation Group. [Dual procedural and object-oriented interface](https://www.php.net/manual/en/mysqli.quickstart.dual-interface.php).
+2. PHP Documentation Group. [Prepared Statements](https://www.php.net/manual/en/mysqli.quickstart.prepared-statements.php).
+3. PHP Documentation Group. [mysqli_result::fetch_assoc](https://www.php.net/manual/en/mysqli-result.fetch-assoc.php).
+4. PHP Documentation Group. [mysqli_stmt::bind_param](https://www.php.net/manual/en/mysqli-stmt.bind-param.php).
+5. phpMyAdmin contributors. [Introduction](https://docs.phpmyadmin.net/en/latest/intro.html).
+6. phpMyAdmin contributors. [Import and export](https://docs.phpmyadmin.net/en/latest/import_export.html).
+7. MariaDB. [DECIMAL](https://mariadb.com/docs/server/reference/data-types/numeric-data-types/decimal).
+8. MariaDB. [CREATE TABLE](https://mariadb.com/docs/server/reference/sql-statements/data-definition/create/create-table).
+
+## Теми для індивідуального виконання з ЛР 8
+
+Оберіть той самий варіант, що й у ЛР 8, та реалізуйте його збереження в MariaDB за вимогами цієї роботи. Теми й нумерацію збережено.
 
 1. Каталог товарів продуктового магазину
 2. Каталог книг у бібліотеці
@@ -425,5 +350,3 @@ if ($results) {
 8. Каталог бази будівельних матеріалів
 9. Власний блог
 10. Розклад маршрутів автовокзалу
-
-

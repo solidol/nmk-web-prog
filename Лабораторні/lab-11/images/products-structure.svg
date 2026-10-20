@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="510" viewBox="0 0 1200 510" role="img" aria-labelledby="title desc">
+<title id="title">Структура таблиці products і значення ключів</title>
+<desc id="desc">Три навчальні товари. id — первинний ключ, product_code — унікальний код, ціна зберігається як DECIMAL(10,2). Час створення встановлює сервер бази.</desc>
+<rect width="1200" height="510" rx="18" fill="#f8fafc"/>
+<g font-family="Segoe UI, sans-serif" fill="#0f172a">
+<text x="32" y="45" font-size="27" font-weight="700">products: структура та початкові навчальні записи</text>
+<text x="32" y="76" font-size="17">Схематичний вигляд, а не знімок phpMyAdmin. Повна структура — у schema.sql.</text>
+<rect x="30" y="105" width="1140" height="50" fill="#0f172a"/>
+<rect x="30" y="155" width="1140" height="150" fill="white" stroke="#94a3b8"/>
+<path d="M90 105V305M230 105V305M440 105V305M760 105V305M900 105V305M30 205H1170M30 255H1170" stroke="#cbd5e1"/>
+<g fill="white" font-size="17" font-weight="600"><text x="43" y="136">id</text><text x="105" y="136">product_code</text><text x="245" y="136">product_name</text><text x="455" y="136">product_desc</text><text x="775" y="136">price</text><text x="915" y="136">created_at</text></g>
+<g font-size="17"><text x="45" y="185">1</text><text x="105" y="185">PD1001</text><text x="245" y="185">Зошит</text><text x="455" y="185">Зошит для навчальних нотаток</text><text x="775" y="185">25.50</text><text x="915" y="185">час створення</text>
+<text x="45" y="235">2</text><text x="105" y="235">PD1002</text><text x="245" y="235">Папка</text><text x="455" y="235">Папка для матеріалів курсу</text><text x="775" y="235">40.00</text><text x="915" y="235">час створення</text>
+<text x="45" y="285">3</text><text x="105" y="285">PD1003</text><text x="245" y="285">Набір ручок</text><text x="455" y="285">Навчальний набір, 3 кольори</text><text x="775" y="285">60.25</text><text x="915" y="285">час створення</text></g>
+<rect x="30" y="330" width="350" height="105" rx="12" fill="#dbeafe"/><text x="48" y="360" font-size="19" font-weight="700">PRIMARY KEY: id</text><text x="48" y="389" font-size="17">Стабільний ідентифікатор рядка.</text><text x="48" y="415" font-size="17">Номер створює AUTO_INCREMENT.</text>
+<rect x="420" y="330" width="350" height="105" rx="12" fill="#ccfbf1"/><text x="438" y="360" font-size="19" font-weight="700">UNIQUE: product_code</text><text x="438" y="389" font-size="17">Один код — один товар.</text><text x="438" y="415" font-size="17">Дублікат відхиляє база даних.</text>
+<rect x="810" y="330" width="360" height="105" rx="12" fill="#ffedd5"/><text x="828" y="360" font-size="19" font-weight="700">DECIMAL(10,2): price</text><text x="828" y="389" font-size="17">Точне десяткове значення ціни.</text><text x="828" y="415" font-size="17">У PHP передаємо як рядок.</text>
+<text x="32" y="478" font-size="18">utf8mb4: українські літери та символи зберігаються без переходу до latin1.</text>
+</g></svg>
