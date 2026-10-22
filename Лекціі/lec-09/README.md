@@ -2,142 +2,197 @@
 
 [Перелік лекцій](../README.md)
 
-## Вступ до PDO: Що це і для чого потрібно  
-PDO (PHP Data Objects) — це розширення для роботи з базами даних у PHP, яке надає уніфікований інтерфейс для взаємодії з різними СУБД (системами управління базами даних). Основна перевага використання PDO полягає в тому, що воно дозволяє писати код, який працюватиме з різними базами даних без необхідності змінювати сам код. Це особливо корисно, якщо ви плануєте міграцію з однієї СУБД на іншу або хочете підтримувати декілька СУБД одночасно.
+## Мета лекції
 
-PDO підтримує безліч популярних баз даних, таких як MySQL, PostgreSQL, SQLite та інші. Це робить його універсальним інструментом для розробників, які працюють з різними базами даних. Уніфікований інтерфейс PDO дозволяє розробникам зосередитися на логіці застосунку, а не на особливостях конкретної бази даних. Це значно спрощує процес розробки та зменшує кількість помилок, пов'язаних із несумісністю різних СУБД.
+Навчитися підключати PHP до MariaDB та MySQL через PDO, виконувати SELECT, INSERT, UPDATE, DELETE, обробляти результати й помилки. Пояснювати можливості уніфікованого інтерфейсу та межі переносимості SQL.
 
-Крім того, PDO підтримує підготовлені вирази, що робить його безпечнішим у порівнянні з традиційними методами роботи з базами даних. Підготовлені вирази допомагають уникнути SQL-ін'єкцій, які є однією з найпоширеніших вразливостей у веб-застосунках. Це особливо важливо для застосунків, які обробляють користувацькі дані, адже зловмисники можуть використовувати SQL-ін'єкції для несанкціонованого доступу до бази даних.
+Середовище — **PHP 8.1, OSPanel 6+**, альтернатива — XAMPP із PHP 8.1; див. [пам’ятку](../../ENVIRONMENT.md). Працюємо на чистому PHP з драйвером `pdo_mysql`. Хост, порт і версію сервера визначають за налаштуваннями вибраного модуля.
 
-## Встановлення та налаштування PDO
-Для початку роботи з PDO необхідно переконатися, що розширення PDO встановлено і ввімкнено у вашій установці PHP. Зазвичай PDO увімкнено за замовчуванням, але якщо це не так, вам потрібно внести зміни у файл конфігурації php.ini.
+## 1. Вступ до PDO: що це і для чого потрібно
 
-## Перевірка наявності PDO
-Щоб перевірити, чи встановлено розширення PDO, можна скористатися функцією `phpinfo()`. Створіть файл `info.php` з таким вмістом:
+PDO (PHP Data Objects) — спільний об’єктний інтерфейс доступу до БД. Для MariaDB і MySQL потрібен драйвер `pdo_mysql` та DSN `mysql:`, а не `mariadb:`.
 
-```php
-<?php
-phpinfo();
-?>
+```mermaid
+flowchart LR
+    A[PHP-застосунок] --> B[PDO: спільний інтерфейс]
+    B --> C[pdo_mysql: драйвер]
+    C --> D[(MariaDB або MySQL)]
+    D --> C
+    C --> E[PDOStatement: результати]
+    E --> A
 ```
 
-Відкрийте цей файл у браузері і знайдіть секцію, присвячену PDO. Якщо ви бачите інформацію про PDO, це означає, що розширення встановлено і готове до використання. У виведенні `phpinfo()` ви знайдете інформацію про підтримувані драйвери PDO, такі як `pdo_mysql`, `pdo_pgsql`, `pdo_sqlite` та інші. Це дасть вам упевненість, що ваше середовище готове до роботи з різними базами даних через PDO.
+PDO **не перекладає SQL автоматично**. Міграція між СУБД потребує перевірки DSN, типів, функцій SQL і транзакцій. MariaDB і MySQL також мають відмінності між версіями.
 
-## Встановлення PDO (якщо не встановлено)
-Якщо PDO не встановлено, вам потрібно буде встановити його вручну. Для цього виконайте наступні команди в залежності від вашої операційної системи:
+Захист від SQL-ін’єкцій забезпечує відокремлення SQL від параметрів, а не сама наявність PDO.
 
-**Для Linux (Ubuntu/Debian):**
-```bash
-sudo apt-get install php-pdo
-sudo service apache2 restart
+## 2. Встановлення та налаштування PDO
+
+### Перевірка наявності
+
+Перевірте `php -v`, `php --ini`, `php -m` у консолі проєкту та доступність драйвера:
+
+```php
+var_dump(extension_loaded('pdo_mysql'));
+print_r(PDO::getAvailableDrivers());
 ```
 
-**Для Windows:**
-- Відкрийте файл `php.ini`.
-- Знайдіть рядок `;extension=pdo_mysql` і видаліть крапку з комою на початку рядка.
-- Перезапустіть веб-сервер (наприклад, Apache або Nginx).
+Очікуємо true і драйвер mysql. Вебпроцес перевірте через тимчасовий phpinfo(), потім приберіть діагностичну сторінку. Конфігурації CLI та вебсервера можуть відрізнятися.
 
-Після виконання цих кроків PDO буде встановлено і готове до використання. Якщо ви використовуєте інші операційні системи, такі як macOS, процес встановлення може трохи відрізнятися, але основні кроки залишаються тими ж: встановлення розширення та перезапуск веб-сервера.
+### Увімкнення драйвера
 
-## Підключення до бази даних з використанням PDO
-Після встановлення і налаштування PDO можна підключатися до бази даних. Для цього використовується клас PDO, який приймає кілька параметрів: DSN (Data Source Name), ім'я користувача та пароль.
+В OSPanel увімкніть `pdo_mysql` для PHP 8.1. У XAMPP для Windows за наявності DLL розкоментуйте `extension=pdo_mysql` у завантаженому php.ini й перезапустіть PHP/вебсервер. Для Linux назва пакета залежить від дистрибутива й версії PHP.
 
-### Приклад підключення до бази даних MySQL
+## 3. Підключення до MariaDB та MySQL
+
+DSN (Data Source Name) описує драйвер, хост, порт, базу й кодування; ім’я користувача та пароль передають окремо. Реквізити не беруть із HTTP-параметрів.
+
 ```php
-<?php
-$dsn = 'mysql:host=localhost;dbname=testdb';
-$username = 'root';
-$password = '';
+$dsn = sprintf('mysql:host=%s;port=%d;dbname=%s;charset=utf8mb4',
+    $host, $port, $database);
+$pdo = new PDO($dsn, $user, $password, [
+    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+    PDO::ATTR_EMULATE_PREPARES => false,
+]);
+```
 
-try {
-    $pdo = new PDO($dsn, $username, $password);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    echo "Підключення успішне!";
-} catch (PDOException $e) {
-    echo "Помилка підключення: " . $e->getMessage();
+Змінні тут уже перевірено. [connection.php](src/connection.php) читає `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD` зі середовища PHP й перевіряє порт. Не припускайте порт 3306 чи порожній пароль.
+
+`ERRMODE_EXCEPTION` задає винятки; `FETCH_ASSOC` — ключі за назвами стовпців; `EMULATE_PREPARES = false` — серверну підготовку. `charset=utf8mb4` налаштовує з’єднання; кодування таблиці задають окремо.
+
+Для прикладів створіть таблицю у власній навчальній базі; [schema.sql](src/schema.sql) містить також два вигадані записи.
+
+```sql
+CREATE TABLE users (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(80) NOT NULL,
+    email VARCHAR(254) NOT NULL,
+    UNIQUE KEY uq_users_email (email)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+```
+
+## 4. Виконання SELECT, INSERT, UPDATE, DELETE
+
+Фрагменти нижче виконують після підключення всередині try/catch; це не готовий HTTP-обробник.
+
+### SELECT: запит і читання результату
+
+Сталий SQL без зовнішніх значень можна виконати через query():
+
+```php
+$stmt = $pdo->query('SELECT id, name, email FROM users ORDER BY id');
+while ($row = $stmt->fetch()) {
+    echo '<p>' . htmlspecialchars($row['name'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '</p>';
 }
-?>
+$stmt->closeCursor();
 ```
 
-У цьому прикладі ми створюємо об'єкт PDO, передаючи йому DSN, ім'я користувача та пароль. Також ми встановлюємо режим обробки помилок за допомогою методу `setAttribute`. Це дозволяє легко відстежувати помилки та обробляти їх відповідним чином. У разі успішного підключення ви побачите повідомлення "Підключення успішне!", а у разі помилки — повідомлення з її описом.
+query() повертає PDOStatement; fetch() читає рядок або повертає false. fetchAll() збирає весь результат у пам’яті. Кількість записів отримують через `SELECT COUNT(*)` і fetchColumn(): rowCount() для SELECT не є переносимим лічильником.
 
-### Приклад підключення до бази даних PostgreSQL
+### Підготовлений пошук за id
+
+Спочатку перевіряють вхідний тип і додатне ціле значення. Тип параметра не замінює валідації:
+
 ```php
-<?php
-$dsn = 'pgsql:host=localhost;dbname=testdb';
-$username = 'root';
-$password = '';
-
-try {
-    $pdo = new PDO($dsn, $username, $password);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    echo "Підключення успішне!";
-} catch (PDOException $e) {
-    echo "Помилка підключення: " . $e->getMessage();
+$rawId = $_GET['id'] ?? null;
+$id = is_string($rawId)
+    ? filter_var($rawId, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]])
+    : false;
+if ($id === false) {
+    throw new InvalidArgumentException('Некоректний id.');
 }
-?>
+$stmt = $pdo->prepare('SELECT id, name, email FROM users WHERE id = :id');
+$stmt->bindValue(':id', $id, PDO::PARAM_INT);
+$stmt->execute();
+$user = $stmt->fetch(); // false означає, що користувача не знайдено.
+$stmt->closeCursor();
 ```
 
-Цей приклад аналогічний попередньому, але використовується для підключення до бази даних PostgreSQL. Як бачите, зміна СУБД вимагає мінімальних змін у коді, що є однією з основних переваг використання PDO.
+```mermaid
+sequenceDiagram
+    participant P as PHP / PDO
+    participant D as MariaDB або MySQL
+    P->>D: prepare: SQL із маркером :id
+    D-->>P: Підготовлений вираз
+    Note over P: bindValue: значення та тип
+    P->>D: execute: параметр id
+    D-->>P: Результат SELECT
+    P->>P: fetch, перевірка, closeCursor
+```
 
-## Виконання запитів: SELECT, INSERT, UPDATE, DELETE
-Після успішного підключення до бази даних можна виконувати різні SQL-запити. Розглянемо основні операції: SELECT, INSERT, UPDATE і DELETE.
+Не змішуйте `:name` і `?` в одному запиті. За серверної підготовки кожне входження іменованого параметра має окреме ім’я. Маркер позначає значення; назви таблиць, стовпців і сортування обирають із фіксованого переліку в коді.
 
-### SELECT
-Для виконання запиту SELECT використовується метод `query` або комбінація методів `prepare` і `execute`.
+### INSERT: додавання
+
+Перевірте рядкові типи, ім’я після trim() від 1 до 80 символів та пошту до 254 байтів через FILTER_VALIDATE_EMAIL. Унікальність email забезпечує індекс БД. Далі `$name` і `$email` уже перевірено.
 
 ```php
-<?php
-$sql = 'SELECT * FROM users';
-foreach ($pdo->query($sql) as $row) {
-    print_r($row);
-}
-?>
+$stmt = $pdo->prepare('INSERT INTO users (name, email) VALUES (:name, :email)');
+$stmt->execute(['name' => $name, 'email' => $email]);
+$newId = (int) $pdo->lastInsertId();
+$stmt->closeCursor();
 ```
 
-У цьому прикладі ми виконуємо простий SELECT-запит і виводимо результати за допомогою циклу `foreach`. Метод `query` повертає об'єкт `PDOStatement`, який можна використовувати для ітерації по результатах запиту.
+Масив execute() зручний для рядків; явний тип задає bindValue(). bindParam() прив’язує змінну за посиланням, bindValue() — значення. lastInsertId() повертає рядок: перетворення тут допустиме для INT-ключа в 64-бітному середовищі.
 
-### INSERT
-Для вставки даних використовується метод `prepare` і `execute`.
+### UPDATE: зміна за первинним ключем
+
+Оновлюйте за унікальним id, а не за ім’ям, яке може повторюватися:
 
 ```php
-<?php
-$sql = 'INSERT INTO users (name, email) VALUES (:name, :email)';
-$stmt = $pdo->prepare($sql);
-$stmt->execute(['name' => 'John Doe', 'email' => 'john@example.com']);
-echo "Запис додано!";
-?>
+$stmt = $pdo->prepare('UPDATE users SET email = :email WHERE id = :id');
+$stmt->bindValue(':email', $newEmail, PDO::PARAM_STR);
+$stmt->bindValue(':id', $newId, PDO::PARAM_INT);
+$stmt->execute();
+$changed = $stmt->rowCount();
+$stmt->closeCursor();
 ```
 
-У цьому прикладі ми використовуємо підготовлені вирази для вставки даних у таблицю `users`. Метод `prepare` готує SQL-запит, а метод `execute` виконує його з вказаними параметрами.
+Нуль змін може означати відсутній запис або те саме значення email. Уточніть результат повторним SELECT: успіх execute() не доводить зміни даних.
 
-### UPDATE
-Для оновлення даних також використовується метод `prepare` і `execute`.
+### DELETE: видалення конкретного запису
 
 ```php
-<?php
-$sql = 'UPDATE users SET email = :email WHERE name = :name';
-$stmt = $pdo->prepare($sql);
-$stmt->execute(['email' => 'john_new@example.com', 'name' => 'John Doe']);
-echo "Запис оновлено!";
-?>
+$stmt = $pdo->prepare('DELETE FROM users WHERE id = :id');
+$stmt->bindValue(':id', $newId, PDO::PARAM_INT);
+$stmt->execute();
+$deleted = $stmt->rowCount();
+$stmt->closeCursor();
 ```
 
-Цей приклад показує, як оновити дані в таблиці `users` з використанням підготовлених виразів. Ми оновлюємо поле `email` для користувача з ім'ям John Doe.
+UPDATE/DELETE без WHERE можуть змінити або видалити всі рядки. У вебзастосунку зміни виконують через POST після перевірки доступу й CSRF-токена для cookie-автентифікації.
 
-### DELETE
-Для видалення даних використовується метод `prepare` і `execute`.
+## 5. Обробка помилок і безпека
 
-```php
-<?php
-$sql = 'DELETE FROM users WHERE name = :name';
-$stmt = $pdo->prepare($sql);
-$stmt->execute(['name' => 'John Doe']);
-echo "Запис видалено!";
-?>
-```
+Охоплюйте підключення й запити try/catch: обидві дії можуть створити PDOException. Користувачу — нейтральне повідомлення й HTTP-статус, у журнал — контекст і SQLSTATE без секретів. Не показуйте getMessage() у браузері.
 
-У цьому прикладі ми видаляємо запис з таблиці `users`, де ім'я користувача дорівнює John Doe. Використання підготовлених виразів робить цей процес безпечним і ефективним.
+Для InnoDB beginTransaction() починає транзакцію, commit() підтверджує, rollBack() скасовує. Перед відкочуванням перевіряйте inTransaction(). DDL може спричинити неявний commit; AUTO_INCREMENT після rollback може мати пропуски.
 
-## Обробка помилок і безпека при роботі з PDO
-Робота з базами даних завжди пов'язана з ризиками, такими як SQL-ін'єкції та помилки виконання запитів. PDO надає кілька механізмів для обробки помилок
+[demo.php](src/demo.php) перевіряє CRUD у транзакції з відкочуванням. Підготуйте schema.sql і змінні середовища, виконайте `php demo.php`: початкові записи залишаться. Звільняйте PDOStatement, потім з’єднання присвоєнням null; методу close() у PDO немає.
+
+Параметризація SQL, валідація, HTML-екранування та CSRF-захист виконують різні завдання; PDO не робить їх замість розробника.
+
+## Контрольні питання
+
+1. Чим відрізняються PDO, pdo_mysql і сервер БД?
+2. Чому PDO не гарантує переносимості SQL без змін?
+3. Які частини DSN потрібні для MariaDB та MySQL?
+4. Для чого задано три атрибути підключення у прикладі?
+5. Чим відрізняються query(), prepare(), execute() і fetch()?
+6. Що перевіряють до bindValue() та чим він відрізняється від bindParam()?
+7. Коли потрібні commit(), rollBack() й inTransaction()?
+8. Чому підготовлені запити не замінюють XSS- і CSRF-захист?
+
+## Джерела
+
+1. PHP Documentation Group. [MySQL PDO Driver](https://www.php.net/manual/en/ref.pdo-mysql.php).
+2. PHP Documentation Group. [PDO_MYSQL DSN](https://www.php.net/manual/en/ref.pdo-mysql.connection.php).
+3. PHP Documentation Group. [PDO::getAvailableDrivers](https://www.php.net/manual/en/pdo.getavailabledrivers.php).
+4. PHP Documentation Group. [PDO::prepare](https://www.php.net/manual/en/pdo.prepare.php).
+5. PHP Documentation Group. [PDOStatement::execute](https://www.php.net/manual/en/pdostatement.execute.php).
+6. PHP Documentation Group. [PDOStatement::bindValue](https://www.php.net/manual/en/pdostatement.bindvalue.php).
+7. PHP Documentation Group. [PDOStatement::rowCount](https://www.php.net/manual/en/pdostatement.rowcount.php).
+8. PHP Documentation Group. [Errors and error handling](https://www.php.net/manual/en/pdo.error-handling.php).
+9. PHP Documentation Group. [Transactions and auto-commit](https://www.php.net/manual/en/pdo.transactions.php).
+10. MariaDB. [CREATE TABLE](https://mariadb.com/docs/server/reference/sql-statements/data-definition/create/create-table).
