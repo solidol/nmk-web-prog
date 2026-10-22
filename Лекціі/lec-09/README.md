@@ -4,13 +4,13 @@
 
 ## Мета лекції
 
-Навчитися підключати PHP до БД через PDO, виконувати CRUD і обробляти помилки. Розуміти роль драйверів та межі переносимості SQL.
+Зрозуміти архітектуру PDO, роль драйверів, переносимість SQL, виконання CRUD та обробку помилок.
 
-Середовище — **PHP 8.1, OSPanel 6+**, альтернатива — XAMPP із PHP 8.1; див. [пам’ятку](../../ENVIRONMENT.md). Працюємо на чистому PHP з драйвером `pdo_mysql`. Хост, порт і версію сервера визначають за налаштуваннями вибраного модуля.
+Приклади — для **PHP 8.1** та pdo_mysql; теорія PDO стосується різних драйверів.
 
 ## 1. Вступ до PDO: що це і для чого потрібно
 
-PDO (PHP Data Objects) — спільний об’єктний інтерфейс для **різних СУБД**, зокрема PostgreSQL, SQLite, Microsoft SQL Server, Oracle, MySQL та MariaDB. Для кожної потрібен відповідний установлений драйвер. У цій лекції приклади зосереджено на MariaDB і MySQL: драйвер `pdo_mysql`, DSN `mysql:`.
+PDO (PHP Data Objects) — спільний об’єктний інтерфейс для різних СУБД. Доступ забезпечують окремі драйвери; приклади цієї лекції використовують `pdo_mysql` для MariaDB/MySQL.
 
 ```mermaid
 flowchart LR
@@ -28,22 +28,27 @@ PDO **не перекладає SQL автоматично**. Міграція �
 
 Захист від SQL-ін’єкцій забезпечує відокремлення SQL від параметрів, а не сама наявність PDO.
 
-## 2. Встановлення та налаштування PDO
+## 2. Архітектура PDO та роль драйверів
 
-### Перевірка наявності
+`PDO` представляє з’єднання, його атрибути й транзакції. `PDOStatement` — запит, параметри та читання результату. `PDOException` — виняток із кодом SQLSTATE; додаткова діагностика залежить від драйвера.
 
-Перевірте `php -v`, `php --ini`, `php -m` у консолі проєкту та доступність драйвера:
+Драйвер перетворює методи PDO на операції СУБД і визначає DSN та підтримані атрибути. Однакові методи не означають однакових можливостей серверів.
 
-```php
-var_dump(extension_loaded('pdo_mysql'));
-print_r(PDO::getAvailableDrivers());
-```
+| Драйвер | СУБД та префікс DSN | Особливість |
+| --- | --- | --- |
+| pdo_mysql | MySQL, MariaDB; `mysql:` | Клієнт-серверна БД |
+| pdo_pgsql | PostgreSQL; `pgsql:` | Власні типи та діалект SQL |
+| pdo_sqlite | SQLite; `sqlite:` | Вбудована БД у файлі або `sqlite::memory:` без окремого сервера |
+| pdo_sqlsrv | Microsoft SQL Server; `sqlsrv:` | Залежить від Microsoft ODBC Driver та можливостей SQL Server |
+| pdo_oci | Oracle; `oci:` | Доступ через Oracle Call Interface |
 
-Для цих прикладів очікуємо true і драйвер mysql. Вебпроцес перевірте через тимчасовий phpinfo(). Конфігурації CLI та вебсервера можуть відрізнятися.
+`sqlite::memory:` створює БД у пам’яті одного з’єднання; незалежне з’єднання її не бачить. Файлова SQLite використовує шлях замість хоста й порту. Серверні СУБД зберігають дані в окремому процесі й перевіряють права користувача.
 
-### Увімкнення драйвера
+`PDO::getAvailableDrivers()` показує драйвери поточного PHP-процесу, а не запущені сервери. Ім’я mysql позначає драйвер, а не розрізняє MariaDB та MySQL.
 
-В OSPanel увімкніть `pdo_mysql` для PHP 8.1. У XAMPP за наявності DLL розкоментуйте `extension=pdo_mysql` у завантаженому php.ini й перезапустіть PHP. У Linux пакет залежить від дистрибутива й версії PHP.
+### Підготовка запиту: серверна та емульована
+
+Серверна підготовка відокремлює SQL-шаблон і значення на сервері. Емуляцію виконує клієнтський драйвер; SQL-помилка може виявитися лише на execute(). Підтримка `ATTR_EMULATE_PREPARES` залежить від драйвера: цей атрибут не є універсальним.
 
 ## 3. Підключення до MariaDB та MySQL
 
@@ -59,20 +64,11 @@ $pdo = new PDO($dsn, $user, $password, [
 ]);
 ```
 
-Змінні тут уже перевірено. [connection.php](src/connection.php) читає `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD` зі середовища PHP й перевіряє порт. Не припускайте порт 3306 чи порожній пароль.
+Перевірені реквізити надходять зі середовища PHP. [connection.php](src/connection.php) читає `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD` і перевіряє порт.
 
 `ERRMODE_EXCEPTION` задає винятки; `FETCH_ASSOC` — ключі за назвами стовпців; `EMULATE_PREPARES = false` — серверну підготовку. `charset=utf8mb4` налаштовує з’єднання; кодування таблиці задають окремо.
 
-Створіть таблицю у власній навчальній базі; [schema.sql](src/schema.sql) додає два вигадані записи.
-
-```sql
-CREATE TABLE users (
-    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(80) NOT NULL,
-    email VARCHAR(254) NOT NULL,
-    UNIQUE KEY uq_users_email (email)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-```
+Таблиця users містить id, name та унікальну адресу email. [schema.sql](src/schema.sql) задає InnoDB, utf8mb4 і два вигадані записи.
 
 ## 4. Виконання SELECT, INSERT, UPDATE, DELETE
 
@@ -97,13 +93,7 @@ query() повертає PDOStatement; fetch() читає рядок або по
 Спочатку перевіряють вхідний тип і додатне ціле значення. Тип параметра не замінює валідації:
 
 ```php
-$rawId = $_GET['id'] ?? null;
-$id = is_string($rawId)
-    ? filter_var($rawId, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]])
-    : false;
-if ($id === false) {
-    throw new InvalidArgumentException('Некоректний id.');
-}
+// $id — уже перевірене додатне ціле число.
 $stmt = $pdo->prepare('SELECT id, name, email FROM users WHERE id = :id');
 $stmt->bindValue(':id', $id, PDO::PARAM_INT);
 $stmt->execute();
@@ -136,7 +126,7 @@ $newId = (int) $pdo->lastInsertId();
 $stmt->closeCursor();
 ```
 
-execute() приймає рядкові значення масивом. bindValue() задає значення й тип, bindParam() — посилання на змінну. lastInsertId() повертає рядок; тут його перетворено на INT у 64-бітному середовищі.
+execute() приймає параметри масивом; bindValue() задає значення й тип, bindParam() — посилання на змінну. Рядок lastInsertId() тут перетворено на INT у 64-бітному середовищі.
 
 ### UPDATE: зміна за первинним ключем
 
@@ -144,9 +134,7 @@ execute() приймає рядкові значення масивом. bindVal
 
 ```php
 $stmt = $pdo->prepare('UPDATE users SET email = :email WHERE id = :id');
-$stmt->bindValue(':email', $newEmail, PDO::PARAM_STR);
-$stmt->bindValue(':id', $newId, PDO::PARAM_INT);
-$stmt->execute();
+$stmt->execute(['email' => $newEmail, 'id' => $newId]);
 $changed = $stmt->rowCount();
 $stmt->closeCursor();
 ```
@@ -157,8 +145,7 @@ $stmt->closeCursor();
 
 ```php
 $stmt = $pdo->prepare('DELETE FROM users WHERE id = :id');
-$stmt->bindValue(':id', $newId, PDO::PARAM_INT);
-$stmt->execute();
+$stmt->execute(['id' => $newId]);
 $deleted = $stmt->rowCount();
 $stmt->closeCursor();
 ```
@@ -167,20 +154,20 @@ UPDATE/DELETE без WHERE можуть змінити або видалити �
 
 ## 5. Обробка помилок і безпека
 
-Підключення й запити охоплюйте try/catch для PDOException. Користувачу — нейтральне повідомлення й HTTP-статус, у журнал — контекст і SQLSTATE без секретів. Не показуйте getMessage() у браузері.
+Підключення й запити охоплюйте try/catch. Журналюйте SQLSTATE і контекст без секретів. Користувачу — нейтральне повідомлення та HTTP-статус, не getMessage().
 
 Для InnoDB beginTransaction() починає транзакцію, commit() підтверджує, rollBack() скасовує. Перед відкочуванням перевіряйте inTransaction(). DDL може спричинити неявний commit; AUTO_INCREMENT після rollback може мати пропуски.
 
-[demo.php](src/demo.php) перевіряє CRUD у транзакції з відкочуванням. Підготуйте schema.sql і змінні середовища, виконайте `php demo.php`: початкові записи залишаться. Звільняйте PDOStatement, потім з’єднання присвоєнням null; методу close() у PDO немає.
+[demo.php](src/demo.php) демонструє CRUD із rollback без зміни початкових записів. Для звільнення з’єднання приберіть усі PDOStatement, потім присвойте PDO-змінній null; методу close() немає.
 
 Параметризація SQL, валідація, HTML-екранування та CSRF-захист виконують різні завдання; PDO не робить їх замість розробника.
 
 ## Контрольні питання
 
-1. Які СУБД підтримує PDO й навіщо потрібні окремі драйвери?
+1. Як пов’язані PDO, PDOStatement, PDOException і драйвер?
 2. Чому PDO не гарантує переносимості SQL без змін?
-3. Які частини DSN потрібні для MariaDB та MySQL?
-4. Для чого задано три атрибути підключення у прикладі?
+3. Чим відрізняються DSN і спосіб зберігання даних SQLite та серверних СУБД?
+4. Чим відрізняються серверна підготовка й емуляція; чому атрибути залежать від драйвера?
 5. Чим відрізняються query(), prepare(), execute() і fetch()?
 6. Що перевіряють до bindValue() та чим він відрізняється від bindParam()?
 7. Коли потрібні commit(), rollBack() й inTransaction()?
@@ -199,3 +186,8 @@ UPDATE/DELETE без WHERE можуть змінити або видалити �
 9. PHP Documentation Group. [Transactions and auto-commit](https://www.php.net/manual/en/pdo.transactions.php).
 10. MariaDB. [CREATE TABLE](https://mariadb.com/docs/server/reference/sql-statements/data-definition/create/create-table).
 11. PHP Documentation Group. [PDO Drivers](https://www.php.net/manual/en/pdo.drivers.php).
+12. PHP Documentation Group. [PostgreSQL PDO Driver](https://www.php.net/manual/en/ref.pdo-pgsql.php).
+13. PHP Documentation Group. [SQLite PDO Driver](https://www.php.net/manual/en/ref.pdo-sqlite.php).
+14. PHP Documentation Group. [MS SQL Server PDO Driver](https://www.php.net/manual/en/ref.pdo-sqlsrv.php).
+15. PHP Documentation Group. [Oracle PDO Driver](https://www.php.net/manual/en/ref.pdo-oci.php).
+16. PHP Documentation Group. [Connections and Connection management](https://www.php.net/manual/en/pdo.connections.php).
