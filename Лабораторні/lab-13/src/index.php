@@ -1,29 +1,42 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Web Page Scraper</title>
-</head>
-<body>
-
 <?php
+require_once __DIR__ . '/Product.php';
 
-include "WebPageScraper.php";
+function escape($text)
+{
+    return htmlspecialchars($text, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+}
 
-// Використання класу для отримання та обробки сторінки
-$url = 'https://college.ks.ua';
-$scraper = new WebPageScraper($url);
-$scraper->loadPage();
+$rows = [];
+$found = null;
+$error = '';
+$hasSearch = array_key_exists('id', $_GET);
 
-$class = 'shedule_content'; 
-$tagName = 'div'; 
+try {
+    $pdo = require __DIR__ . '/connection.php';
+    $statement = $pdo->query('SELECT id, name, category FROM products ORDER BY id');
+    while (($product = $statement->fetchObject(Product::class)) !== false) {
+        $rows[] = $product;
+    }
 
-$elements = $scraper->findElementsByClass($class, $tagName);
-
-echo $scraper->getDOM()->saveHTML($elements[0]) . "\n";
-
-?>
-
-</body>
-</html>
+    if ($hasSearch) {
+        $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT, [
+            'options' => ['min_range' => 1],
+        ]);
+        if ($id === false || $id === null) {
+            $error = 'Ідентифікатор має бути додатним цілим числом.';
+        } else {
+            $statement = $pdo->prepare(
+                'SELECT id, name, category FROM products WHERE id = :id'
+            );
+            $statement->bindValue(':id', $id, PDO::PARAM_INT);
+            $statement->execute();
+            $found = $statement->fetchObject(Product::class);
+        }
+    }
+} catch (Throwable $exception) {
+    error_log((string) $exception);
+    http_response_code(500);
+    $error = 'Каталог недоступний. Перевірте журнал PHP.';
+    $rows = [];
+}
+require __DIR__ . '/catalog.view.php';
