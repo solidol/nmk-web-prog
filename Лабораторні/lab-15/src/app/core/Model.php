@@ -1,29 +1,45 @@
+
 <?php
+
 class Model
 {
     protected PDO $pdo;
     protected string $table;
-    protected array $fields;
-    protected array $attributes;
+    protected array $fields = [];
+    protected array $attributes = [];
 
-    public function __construct(PDO $pdo, string $table, array $fields, array $data = [])
-    {
-        // Імена SQL не можна передати через ?. Беремо прості ідентифікатори з коду.
-        foreach (array_merge([$table], $fields) as $name) {
-            if (!preg_match('/\A[a-zA-Z_][a-zA-Z0-9_]*\z/', $name)) {
-                throw new InvalidArgumentException('Некоректне ім’я таблиці або поля.');
-            }
-        }
+    // Назва таблиці для дочірніх класів
+    protected static string $defaultTable = '';
+
+    public function __construct(
+        PDO $pdo,
+        string $table = '',
+        array $data = []
+    ) {
         $this->pdo = $pdo;
-        $this->table = $table;
-        $this->fields = array_values(array_diff($fields, ['id']));
-        $this->attributes = ['id' => null] + array_fill_keys($this->fields, null);
+        $this->table = $table ?: static::$defaultTable;
+
+        // Перевірка назви таблиці
+        if (!preg_match('/\A[a-zA-Z_][a-zA-Z0-9_]*\z/', $this->table)) {
+            throw new InvalidArgumentException('Некоректна назва таблиці.');
+        }
+
+        // Автоматично отримуємо поля таблиці
+        $stmt = $pdo->query("SHOW COLUMNS FROM `{$this->table}`");
+        $this->fields = $stmt->fetchAll(PDO::FETCH_COLUMN);
+        $stmt->closeCursor();
+
+        // Створюємо атрибути для всіх полів
+        $this->attributes = array_fill_keys($this->fields, null);
+
+        // Заповнюємо передані дані
         foreach ($data as $name => $value) {
             if (array_key_exists($name, $this->attributes)) {
                 $this->attributes[$name] = $value;
             }
         }
-        if ($this->attributes['id'] !== null) {
+
+        if (isset($this->attributes['id'])) {
             $this->attributes['id'] = (int) $this->attributes['id'];
         }
     }
@@ -35,71 +51,123 @@ class Model
 
     public function __set(string $name, mixed $value): void
     {
-        if (in_array($name, $this->fields, true)) {
+        if ($name !== 'id' && in_array($name, $this->fields, true)) {
             $this->attributes[$name] = $value;
         }
     }
 
+    // СТАТИЧНІ МЕТОДИ
+
     /** @return static[] */
-    public function all(): array
+    public static function all(PDO $pdo, string $table = ''): array
     {
-        $columns = '`' . implode('`, `', array_keys($this->attributes)) . '`';
-        $stmt = $this->pdo->query("SELECT $columns FROM `{$this->table}` ORDER BY id");
+        $model = new static($pdo, $table);
+
+        $stmt = $pdo->query(
+            "SELECT * FROM `{$model->table}` ORDER BY id"
+        );
+
         $models = [];
+
         while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            $models[] = new static($this->pdo, $this->table, $this->fields, $row);
+            $models[] = new static($pdo, $model->table, $row);
         }
+
         $stmt->closeCursor();
         return $models;
     }
 
-    public function find(int $id): ?static
-    {
-        $columns = '`' . implode('`, `', array_keys($this->attributes)) . '`';
-        $stmt = $this->pdo->prepare("SELECT $columns FROM `{$this->table}` WHERE id = :id");
-        $stmt->bindValue(':id', $id, PDO::PARAM_INT);
-        $stmt->execute();
+    public static function find(
+        PDO $pdo,
+        int $id,
+        string $table = ''
+    ): ?static {
+        $model = new static($pdo, $table);
+
+        $stmt = $pdo->prepare(
+            "SELECT * FROM `{$model->table}` WHERE id = ?"
+        );
+
+        $stmt->execute([$id]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         $stmt->closeCursor();
-        return $row === false ? null : new static($this->pdo, $this->table, $this->fields, $row);
+
+        return $row === false
+            ? null
+            : new static($pdo, $model->table, $row);
     }
 
-    public function create(array $data): ?static
-    {
-        // Лише явно дозволені поля; id і сторонні ключі не потрапляють до INSERT.
-        $data = array_intersect_key($data, array_flip($this->fields));
+    public static function create(
+        PDO $pdo,
+        array $data,
+        string $table = ''
+    ): ?static {
+        $model = new static($pdo, $table);
+
+        // Дозволяємо лише поля таблиці, крім id
+        $fields = array_diff($model->fields, ['id']);
+
+        $data = array_intersect_key(
+            $data,
+            array_flip($fields)
+        );
+
         if ($data === []) {
-            throw new InvalidArgumentException('Не передано даних для додавання.');
+            throw new InvalidArgumentException('Немає даних для додавання.');
         }
+
         $columns = '`' . implode('`, `', array_keys($data)) . '`';
         $markers = implode(', ', array_fill(0, count($data), '?'));
-        $stmt = $this->pdo->prepare("INSERT INTO `{$this->table}` ($columns) VALUES ($markers)");
+
+        $sql = "INSERT INTO `{$model->table}`
+                ($columns) VALUES ($markers)";
+
+        $stmt = $pdo->prepare($sql);
         $stmt->execute(array_values($data));
-        $id = (int) $this->pdo->lastInsertId();
+
+        $id = (int) $pdo->lastInsertId();
         $stmt->closeCursor();
-        return $this->find($id);
+
+        return static::find($pdo, $id, $model->table);
     }
+
+    // МЕТОДИ ОБ'ЄКТА
 
     public function update(array $data): bool
     {
-        $data = array_intersect_key($data, array_flip($this->fields));
+        // Не дозволяємо змінювати id
+        $fields = array_diff($this->fields, ['id']);
+
+        $data = array_intersect_key(
+            $data,
+            array_flip($fields)
+        );
+
         if ($this->id === null || $data === []) {
             return false;
         }
+
         $set = [];
+
         foreach (array_keys($data) as $field) {
             $set[] = "`$field` = ?";
         }
-        $sql = "UPDATE `{$this->table}` SET " . implode(', ', $set) . ' WHERE id = ?';
+
+        $sql = "UPDATE `{$this->table}` SET "
+             . implode(', ', $set)
+             . " WHERE id = ?";
+
         $values = array_values($data);
         $values[] = $this->id;
+
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute($values);
         $stmt->closeCursor();
+
         foreach ($data as $name => $value) {
             $this->attributes[$name] = $value;
         }
-        // true означає виконання SQL; за потреби стан уточнюють через find().
+
         return true;
     }
 
@@ -108,14 +176,20 @@ class Model
         if ($this->id === null) {
             return false;
         }
-        $stmt = $this->pdo->prepare("DELETE FROM `{$this->table}` WHERE id = :id");
-        $stmt->bindValue(':id', $this->id, PDO::PARAM_INT);
-        $stmt->execute();
+
+        $stmt = $this->pdo->prepare(
+            "DELETE FROM `{$this->table}` WHERE id = ?"
+        );
+
+        $stmt->execute([$this->id]);
+
         $deleted = $stmt->rowCount() === 1;
         $stmt->closeCursor();
+
         if ($deleted) {
             $this->attributes['id'] = null;
         }
+
         return $deleted;
     }
 }
