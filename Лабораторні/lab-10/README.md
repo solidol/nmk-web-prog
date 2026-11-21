@@ -1,5 +1,7 @@
 # Лабораторна робота №10. Використання програми Postman для емуляції дій користувача сайту
 
+<!-- {% raw %} -->
+
 [Перелік усіх робіт](../README.md)
 
 ## Мета роботи
@@ -409,3 +411,5 @@ pm.test("Тіло порожнє", () => pm.expect(pm.response.text()).to.equal(
 Для додаткових вправ залишено [Postman Echo](https://postman-echo.com/get), [JSONPlaceholder](https://jsonplaceholder.typicode.com/) та [його посібник](https://jsonplaceholder.typicode.com/guide/). Зовнішні сервіси можуть бути недоступними або змінювати поведінку; основну роботу виконуємо локально. Створення запису в демонстраційному JSONPlaceholder не слід трактувати як доказ постійного збереження на віддаленому сервері — це потрібно окремо підтверджувати повторним читанням і документацією сервісу.
 
 Посилання [QAGroup](https://qagroup.com.ua/publications/znajomtes-postman-must-have-dlia-qa/) та [Highload.today](https://highload.today/blogs/fichi-postman-kotorye-oblegchat-zhizn-testirovshhika-poshagovaya-instruktsiya-s-video/) збережено для відстежуваності. Їхній поточний зміст і відповідність актуальному інтерфейсу не перевірено; до обов’язкового мінімуму джерел їх не зараховано. Дублікати посилань попередньої редакції об’єднано.
+
+<!-- {% endraw %} -->

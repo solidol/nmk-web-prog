@@ -1,5 +1,8 @@
 # Шаблонізатор TWIG
 
+<!-- {% raw %} -->
+
+
 ## Мета
 
 Пояснювати синтаксис Twig, організацію шаблонів та правила безпечного виведення; порівнювати його з Blade. Самостійна робота — 2 год.
@@ -54,3 +57,5 @@ TODO: уточнити версії технологій — установле�
 3. Twig. [extends](https://twig.symfony.com/doc/3.x/tags/extends.html).
 4. Twig. [for](https://twig.symfony.com/doc/3.x/tags/for.html).
 5. Twig. [escape](https://twig.symfony.com/doc/3.x/filters/escape.html).
+
+<!-- {% endraw %} -->

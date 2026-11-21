@@ -1,5 +1,8 @@
 # Шаблонізатор Blade
 
+<!-- {% raw %} -->
+
+
 ## Мета
 
 Формувати HTML за допомогою Blade, передавати дані в подання та застосовувати екранування й засоби побудови форм. Самостійна робота — 2 год. Матеріал стосується Laravel 10.x із навчального проєкту.
@@ -60,3 +63,5 @@ POST-форма в маршрутах із сеансовим CSRF-захист�
 3. Laravel. [CSRF Protection](https://laravel.com/docs/10.x/csrf).
 4. Laravel. [Validation](https://laravel.com/docs/10.x/validation).
 5. Laravel. [Routing](https://laravel.com/docs/10.x/routing).
+
+<!-- {% endraw %} -->
