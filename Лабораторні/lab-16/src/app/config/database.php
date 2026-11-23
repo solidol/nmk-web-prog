@@ -2,8 +2,8 @@
 // Значення середовища замінюють наведені навчальні налаштування.
 $host = getenv('DB_HOST') ?: '127.0.0.1';
 $port = getenv('DB_PORT') ?: '3306';
-$database = getenv('DB_NAME') ?: 'lab15';
-$username = getenv('DB_USER') ?: 'lab15_user';
+$database = getenv('DB_NAME') ?: 'lab16';
+$username = getenv('DB_USER') ?: 'lab16_user';
 $password = (string) getenv('DB_PASSWORD');
 
 $dsn = "mysql:host=$host;port=$port;dbname=$database;charset=utf8mb4";

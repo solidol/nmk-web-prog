@@ -76,15 +76,18 @@ class User
         return true;
     }
 
-    public static function delete(PDO $pdo, User $user): bool
+    public function delete(): bool
     {
-        $stmt = $pdo->prepare('DELETE FROM users WHERE id = :id');
-        $stmt->bindValue(':id', $user->id, PDO::PARAM_INT);
+        if ($this->id === null) {
+            return false;
+        }
+        $stmt = $this->pdo->prepare('DELETE FROM users WHERE id = :id');
+        $stmt->bindValue(':id', $this->id, PDO::PARAM_INT);
         $stmt->execute();
         $deleted = $stmt->rowCount() === 1;
         $stmt->closeCursor();
         if ($deleted) {
-            $user->id = null;
+            $this->id = null;
         }
         return $deleted;
     }

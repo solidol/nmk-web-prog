@@ -8,16 +8,13 @@ class Model
     protected array $fields = [];
     protected array $attributes = [];
 
-    // Назва таблиці для дочірніх класів
-    protected static string $defaultTable = '';
-
     public function __construct(
         PDO $pdo,
-        string $table = '',
+        string $table,
         array $data = []
     ) {
         $this->pdo = $pdo;
-        $this->table = $table ?: static::$defaultTable;
+        $this->table = $table;
 
         // Перевірка назви таблиці
         if (!preg_match('/\A[a-zA-Z_][a-zA-Z0-9_]*\z/', $this->table)) {
@@ -59,7 +56,7 @@ class Model
     // СТАТИЧНІ МЕТОДИ
 
     /** @return static[] */
-    public static function all(PDO $pdo, string $table = ''): array
+    public static function all(PDO $pdo, string $table): array
     {
         $model = new static($pdo, $table);
 
@@ -80,7 +77,7 @@ class Model
     public static function find(
         PDO $pdo,
         int $id,
-        string $table = ''
+        string $table
     ): ?static {
         $model = new static($pdo, $table);
 
@@ -100,7 +97,7 @@ class Model
     public static function create(
         PDO $pdo,
         array $data,
-        string $table = ''
+        string $table
     ): ?static {
         $model = new static($pdo, $table);
 
@@ -132,6 +129,23 @@ class Model
     }
 
     // МЕТОДИ ОБ'ЄКТА
+
+    public function save(): bool
+    {
+        $data = $this->attributes;
+        unset($data['id']);
+
+        if ($this->id !== null) {
+            return $this->update($data);
+        }
+
+        $model = static::create($this->pdo, $data, $this->table);
+        if ($model === null) {
+            return false;
+        }
+        $this->attributes = $model->attributes;
+        return true;
+    }
 
     public function update(array $data): bool
     {

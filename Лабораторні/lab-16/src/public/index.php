@@ -1,6 +1,6 @@
-
 <?php
 
+require_once dirname(__DIR__) . '/app/core/Model.php';
 require_once dirname(__DIR__) . '/app/models/User.php';
 require_once dirname(__DIR__) . '/app/models/Book.php';
 

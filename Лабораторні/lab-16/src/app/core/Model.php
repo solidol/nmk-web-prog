@@ -1,4 +1,3 @@
-
 <?php
 
 class Model
@@ -132,6 +131,23 @@ class Model
     }
 
     // МЕТОДИ ОБ'ЄКТА
+
+    public function save(): bool
+    {
+        $data = $this->attributes;
+        unset($data['id']);
+
+        if ($this->id !== null) {
+            return $this->update($data);
+        }
+
+        $model = static::create($this->pdo, $data, $this->table);
+        if ($model === null) {
+            return false;
+        }
+        $this->attributes = $model->attributes;
+        return true;
+    }
 
     public function update(array $data): bool
     {

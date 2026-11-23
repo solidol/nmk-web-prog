@@ -1,11 +1,10 @@
 <?php
 class Student extends Model
 {
-    static $pdo;
-    static $table = "students";
+    protected static string $defaultTable = 'students';
 
-    public function group()
+    public function group(): ?Group
     {
-        return $this->belongsTo("Group", 'group_id');
+        return $this->belongsTo(Group::class, 'group_id');
     }
 }

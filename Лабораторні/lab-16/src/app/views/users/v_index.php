@@ -3,31 +3,32 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Користувачі — ЛР 14</title>
+    <title>Користувачі — ЛР 16</title>
     <link rel="stylesheet" href="css/app.css">
 </head>
 <body>
 <main class="container">
     <header class="page-header">
-        <p class="eyebrow">Лабораторна робота 14 · Модель і представлення</p>
+        <p class="eyebrow">Лабораторна робота 16 · Модель і представлення</p>
+        <nav><a href="index.php?model=users">Користувачі</a> · <a href="index.php?model=books">Книги</a></nav>
         <h1>Користувачі</h1>
         <p class="muted">Список екземплярів моделі User.</p>
     </header>
-    <?php if ($users === []): ?>
+    <?php if ($items === []): ?>
         <section class="card"><h2>Список порожній</h2><p>У навчальній базі ще немає користувачів.</p></section>
     <?php else: ?>
         <section class="card table-scroll">
             <table>
-                <caption>Кількість користувачів: <?= count($users) ?></caption>
+                <caption>Кількість користувачів: <?= count($items) ?></caption>
                 <thead><tr><th scope="col">ID</th><th scope="col">Ім’я користувача</th>
                     <th scope="col">Електронна пошта</th><th scope="col">Перегляд</th></tr></thead>
                 <tbody>
-                <?php foreach ($users as $item): ?>
+                <?php foreach ($items as $item): ?>
                     <tr>
                         <td><?= $item->id ?></td>
                         <td><?= e($item->username) ?></td>
                         <td><?= e($item->email) ?></td>
-                        <td><a href="index.php?id=<?= $item->id ?>" aria-label="<?= e('Переглянути: ' . $item->username) ?>">Відкрити</a></td>
+                        <td><a href="index.php?model=users&amp;id=<?= $item->id ?>" aria-label="<?= e('Переглянути: ' . $item->username) ?>">Відкрити</a></td>
                     </tr>
                 <?php endforeach; ?>
                 </tbody>

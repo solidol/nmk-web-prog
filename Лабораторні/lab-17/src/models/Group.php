@@ -1,10 +1,10 @@
 <?php
 class Group extends Model
 {
-    static $pdo;
-    static $table = "groups";
+    protected static string $defaultTable = 'groups';
 
-    public function students(){
-        return $this->hasMany("Student", "group_id");
+    public function students(): array
+    {
+        return $this->hasMany(Student::class, 'group_id');
     }
 }

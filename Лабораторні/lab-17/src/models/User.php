@@ -1,7 +1,6 @@
 <?php
 class User extends Model
 {
-    static $pdo;
-    static $table = "users";
+    protected static string $defaultTable = 'users';
 
 }

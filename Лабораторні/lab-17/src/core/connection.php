@@ -1,7 +1,8 @@
 <?php
-try {
-    $pdo = new PDO("mysql:host=$host;dbname=$database", $user, $password);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch (PDOException $e) {
-    die("Помилка підключення до бази даних: " . $e->getMessage());
-}
+$dsn = "mysql:host=$host;port=$port;dbname=$database;charset=utf8mb4";
+
+return new PDO($dsn, $username, $password, [
+    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+    PDO::ATTR_EMULATE_PREPARES => false,
+]);
